@@ -62,7 +62,7 @@ export default function FiltersSection({
           <button
             key={tab.value}
             onClick={() => onAvailability(tab.value)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 cursor-pointer rounded-lg text-[12.5px] font-medium transition-colors ${
               availability === tab.value
                 ? 'bg-ink text-white'
                 : 'text-ink-3 hover:text-ink hover:bg-white/80'
