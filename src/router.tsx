@@ -1,11 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom'
 import AppLayout from './layouts/AppLayout'
 import HomePage from './pages/HomePage'
-import PropiedadesPage from './pages/PropiedadesPage'
-import ContactosPage from './pages/ContactosPage'
-import BoletasPage from './pages/BoletasPage'
-import MapaPage from './pages/MapaPage'
-import TransaccionesPage from './pages/TransaccionesPage'
+import PropertiesPage from './pages/PropertiesPage'
+import ContactsPage from './pages/ContactsPage'
+import TicketsPage from './pages/TicketsPage'
+import MapaPage from './pages/MapPage'
+import TransactionsPage from './pages/TransactionsPage'
+
 
 const router = createBrowserRouter([
   {
@@ -13,11 +14,11 @@ const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'propiedades', element: <PropiedadesPage /> },
-      { path: 'contactos', element: <ContactosPage /> },
-      { path: 'boletas', element: <BoletasPage /> },
+      { path: 'propiedades', element: <PropertiesPage /> },
+      { path: 'contactos', element: <ContactsPage /> },
+      { path: 'boletas', element: <TicketsPage /> },
       { path: 'mapa', element: <MapaPage /> },
-      { path: 'transacciones', element: <TransaccionesPage /> },
+      { path: 'transacciones', element: <TransactionsPage /> },
     ],
   },
 ])

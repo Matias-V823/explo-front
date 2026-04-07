@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { BarChart2, FileText, PenLine, Mail, ArrowRight, Clock, CheckCircle2 } from 'lucide-react'
+import { BarChart2, FileText, PenLine, Mail } from 'lucide-react'
 
 interface QuickAction {
   id: string
