@@ -1,16 +1,84 @@
-import { MapPin, User, Phone } from 'lucide-react'
+import { useRef, useState, useEffect } from 'react'
+import { MapPin, User, Phone, MoreHorizontal, Eye, Pencil, Trash2 } from 'lucide-react'
 import type { ListingProperty } from '../../types/properties'
 import { AVAILABILITY_CONFIG } from '../../data/mockProperties'
 
 interface PropertyCardProps {
   property: ListingProperty
+  onView: (id: number) => void
+  onEdit: (id: number) => void
+  onDelete: (id: number) => void
 }
 
-export default function PropertyCard({ property }: PropertyCardProps) {
+function PropertyMenu({ id, onView, onEdit, onDelete }: {
+  id: number
+  onView: (id: number) => void
+  onEdit: (id: number) => void
+  onDelete: (id: number) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open])
+
+  function handle(fn: (id: number) => void) {
+    setOpen(false)
+    fn(id)
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-7 h-7 flex items-center justify-center rounded-lg border border-zinc-200 bg-white/60 text-ink-3 hover:bg-white hover:text-ink transition-colors z-9999"
+      >
+        <MoreHorizontal size={14} strokeWidth={2} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-9 z-20 w-44 bg-white rounded-xl border border-zinc-200 shadow-md py-1 overflow-hidden">
+          <button
+            onClick={() => handle(onView)}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-ink-3 hover:bg-zinc-50 hover:text-ink transition-colors"
+          >
+            <Eye size={13} strokeWidth={1.8} />
+            Ver propiedad
+          </button>
+          <button
+            onClick={() => handle(onEdit)}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-ink-3 hover:bg-zinc-50 hover:text-ink transition-colors"
+          >
+            <Pencil size={13} strokeWidth={1.8} />
+            Editar propiedad
+          </button>
+          <div className="mx-2 my-1 border-t border-zinc-100" />
+          <button
+            onClick={() => handle(onDelete)}
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-red-500 hover:bg-red-50 transition-colors"
+          >
+            <Trash2 size={13} strokeWidth={1.8} />
+            Eliminar propiedad
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function PropertyCard({ property, onView, onEdit, onDelete }: PropertyCardProps) {
   const badge = AVAILABILITY_CONFIG[property.availability]
 
   return (
-    <div className="bg-white/80 rounded-2xl border border-white/60 shadow-sm flex overflow-hidden hover:-translate-y-px transition-transform duration-200 h-42">
+    <div className="bg-white/80 rounded-2xl border border-white/60 shadow-sm flex overflow-hidden hover:-translate-y-px transition-transform duration-200 h-50">
       {/* Image */}
       <div className="w-55 min-w-55 bg-zinc-100 relative overflow-hidden">
         <img
@@ -35,9 +103,17 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               {property.name}
             </h3>
           </div>
-          <span className={`shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${badge.badgeClass}`}>
-            {badge.label}
-          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${badge.badgeClass}`}>
+              {badge.label}
+            </span>
+            <PropertyMenu
+              id={property.id}
+              onView={onView}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          </div>
         </div>
 
         {/* Description */}

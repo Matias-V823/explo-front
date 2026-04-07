@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Building2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Building2, Plus } from 'lucide-react'
 import type { FilterAvailability } from '../types/properties'
 import { MOCK_PROPERTIES } from '../data/mockProperties'
 import PropertyCard from '../components/properties/PropertyCard'
@@ -9,6 +10,7 @@ import FiltersSection from '../components/properties/PropertyFilters'
 const PAGE_SIZE = 5
 
 export default function PropertiesPage() {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [availability, setAvailability] = useState<FilterAvailability>('todas')
   const [page, setPage] = useState(1)
@@ -50,26 +52,45 @@ export default function PropertiesPage() {
 
   return (
     <div className="px-10 pt-9 pb-10 max-w-360 mx-auto w-full">
-      <div className="mb-6">
-        <h1 className="text-[36px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1] mb-1">
-          Propiedades
-        </h1>
-        <p className="text-[13px] text-ink-3">{counts.total} propiedades registradas</p>
+      <div className="flex items-end justify-between mb-6">
+        <div>
+          <h1 className="text-[36px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1] mb-1">
+            Propiedades
+          </h1>
+          <p className="text-[13px] text-ink-3">{counts.total} propiedades registradas</p>
+        </div>
+      </div>
+      <div className='flex justify-between items-center text-center'>
+
+        <FiltersSection
+          search={search}
+          availability={availability}
+          counts={counts}
+          onSearch={handleSearch}
+          onAvailability={handleAvailability}
+        />
+        <button
+          onClick={() => navigate('/propiedades/nueva')}
+          className="flex items-center gap-2 px-4 py-2 bg-ink text-white text-[13px] font-medium rounded-xl hover:bg-ink/85 transition-colors cursor-pointer"
+        >
+          <Plus size={14} strokeWidth={2.5} />
+          Agregar propiedad
+        </button>
       </div>
 
-      <FiltersSection
-        search={search}
-        availability={availability}
-        counts={counts}
-        onSearch={handleSearch}
-        onAvailability={handleAvailability}
-      />
+
 
       {paginated.length > 0 ? (
         <>
           <div className="flex flex-col gap-3">
             {paginated.map(property => (
-              <PropertyCard key={property.id} property={property} />
+              <PropertyCard
+                key={property.id}
+                property={property}
+                onView={id => navigate(`/propiedades/${id}`)}
+                onEdit={id => navigate(`/propiedades/${id}/editar`)}
+                onDelete={id => console.log('eliminar', id)}
+              />
             ))}
           </div>
           <Pagination

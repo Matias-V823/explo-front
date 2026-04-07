@@ -6,6 +6,7 @@ import ContactsPage from './pages/ContactsPage'
 import TicketsPage from './pages/TicketsPage'
 import MapaPage from './pages/MapPage'
 import TransactionsPage from './pages/TransactionsPage'
+import PropertyFormPage from './pages/PropertyFormPage'
 
 
 const router = createBrowserRouter([
@@ -15,6 +16,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'propiedades', element: <PropertiesPage /> },
+      { path: 'propiedades/nueva', element: <PropertyFormPage /> },
+      { path: 'propiedades/:id/editar', element: <PropertyFormPage /> },
       { path: 'contactos', element: <ContactsPage /> },
       { path: 'boletas', element: <TicketsPage /> },
       { path: 'mapa', element: <MapaPage /> },
