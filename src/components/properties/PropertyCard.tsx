@@ -48,14 +48,14 @@ function PropertyMenu({ id, onView, onEdit, onDelete }: {
         <div className="absolute right-0 top-9 z-20 w-44 bg-white rounded-xl border border-zinc-200 shadow-md py-1 overflow-hidden">
           <button
             onClick={() => handle(onView)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-ink-3 hover:bg-zinc-50 hover:text-ink transition-colors"
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-ink-3 hover:bg-zinc-50 hover:text-ink transition-colors cursor-pointer"
           >
             <Eye size={13} strokeWidth={1.8} />
             Ver propiedad
           </button>
           <button
             onClick={() => handle(onEdit)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-ink-3 hover:bg-zinc-50 hover:text-ink transition-colors"
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-ink-3 hover:bg-zinc-50 hover:text-ink transition-colors cursor-pointer"
           >
             <Pencil size={13} strokeWidth={1.8} />
             Editar propiedad
@@ -63,7 +63,7 @@ function PropertyMenu({ id, onView, onEdit, onDelete }: {
           <div className="mx-2 my-1 border-t border-zinc-100" />
           <button
             onClick={() => handle(onDelete)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-red-500 hover:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
           >
             <Trash2 size={13} strokeWidth={1.8} />
             Eliminar propiedad

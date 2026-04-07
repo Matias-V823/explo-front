@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Building2, Plus } from 'lucide-react'
-import type { FilterAvailability } from '../types/properties'
+import type { FilterAvailability, PropertyCategory } from '../types/properties'
 import { MOCK_PROPERTIES } from '../data/mockProperties'
 import PropertyCard from '../components/properties/PropertyCard'
 import Pagination from '../components/properties/Pagination'
@@ -13,6 +13,7 @@ export default function PropertiesPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [availability, setAvailability] = useState<FilterAvailability>('todas')
+  const [category, setCategory] = useState<PropertyCategory | 'todas'>('todas')
   const [page, setPage] = useState(1)
 
   const filtered = useMemo(() => {
@@ -25,9 +26,10 @@ export default function PropertiesPage() {
         p.ownerName.toLowerCase().includes(q) ||
         p.description.toLowerCase().includes(q)
       const matchesAvailability = availability === 'todas' || p.availability === availability
-      return matchesSearch && matchesAvailability
+      const matchesCategory = category === 'todas' || p.category === category
+      return matchesSearch && matchesAvailability && matchesCategory
     })
-  }, [search, availability])
+  }, [search, availability, category])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -43,6 +45,11 @@ export default function PropertiesPage() {
     setPage(1)
   }
 
+  function handleCategory(value: PropertyCategory | 'todas') {
+    setCategory(value)
+    setPage(1)
+  }
+
   const counts = {
     total: MOCK_PROPERTIES.length,
     arrendar: MOCK_PROPERTIES.filter(p => p.availability === 'arrendar').length,
@@ -52,26 +59,26 @@ export default function PropertiesPage() {
 
   return (
     <div className="px-10 pt-9 pb-10 max-w-360 mx-auto w-full">
-      <div className="flex items-end justify-between mb-6">
-        <div>
-          <h1 className="text-[36px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1] mb-1">
-            Propiedades
-          </h1>
-          <p className="text-[13px] text-ink-3">{counts.total} propiedades registradas</p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-[36px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1] mb-1">
+          Propiedades
+        </h1>
+        <p className="text-[13px] text-ink-3">{counts.total} propiedades registradas</p>
       </div>
-      <div className='flex justify-between items-center text-center'>
 
+      <div className="flex items-center justify-between gap-3 mb-5">
         <FiltersSection
           search={search}
           availability={availability}
+          category={category}
           counts={counts}
           onSearch={handleSearch}
           onAvailability={handleAvailability}
+          onCategory={handleCategory}
         />
         <button
           onClick={() => navigate('/propiedades/nueva')}
-          className="flex items-center gap-2 px-4 py-2 bg-ink text-white text-[13px] font-medium rounded-xl hover:bg-ink/85 transition-colors cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 bg-ink text-white text-[13px] font-medium rounded-xl hover:bg-ink/85 transition-colors cursor-pointer shrink-0"
         >
           <Plus size={14} strokeWidth={2.5} />
           Agregar propiedad
