@@ -1,4 +1,4 @@
-import type { Availability, ListingProperty } from '../types/properties'
+import type { Availability, ListingProperty, PropertyFinancials } from '../types/properties'
 
 // TODO: reemplazar con llamada a API →
 // fetchProperties({ search, availability, page, pageSize })
@@ -15,9 +15,33 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 7_200,
     availability: 'arrendar',
     category: 'departamento',
+    ownerId: 1,
     ownerName: 'Rodrigo Fuentes',
     contact: '+56 9 8812 3344',
     location: 'Providencia, RM',
+    program: { bedrooms: 2, bathrooms: 2, parkings: 1, construction: 78 },
+    utilities: {
+      electricity: 'al-dia', electricityBill: 'ELE-2026-04-00342',
+      water: 'al-dia', waterBill: 'AGU-2026-04-00119',
+      gas: 'al-dia', gasBill: 'GAS-2026-04-00087',
+    },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2019-03-15' },
+      { id: 2, name: 'Certificado de avalúo', type: 'certificado', date: '2024-01-10' },
+    ],
+    importantDates: [
+      { label: 'Revisión anual', date: '2025-06-01', type: 'revision' },
+      { label: 'Pago contribuciones', date: '2025-04-30', type: 'pago' },
+    ],
+    financials: {
+      monthlyRentCLP: 650_000,
+      administrationPct: 10,
+      administrationAmount: 65_000,
+      paymentDueDay: 5,
+      nextPaymentDate: '2026-05-05',
+      lastPaymentDate: '2026-04-05',
+      transferStatus: 'pagado',
+    },
   },
   {
     id: 2,
@@ -27,9 +51,21 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 18_500,
     availability: 'venta',
     category: 'casa',
+    ownerId: 2,
     ownerName: 'Carla Mendoza',
     contact: '+56 9 7723 9901',
     location: 'Las Condes, RM',
+    program: { bedrooms: 4, bathrooms: 3, parkings: 2, terrain: 350, construction: 210 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'al-dia' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2015-08-20' },
+      { id: 2, name: 'Permiso de edificación', type: 'certificado', date: '2015-01-05' },
+      { id: 3, name: 'Certificado de recepción final', type: 'certificado', date: '2016-03-12' },
+    ],
+    importantDates: [
+      { label: 'Tasación vigente hasta', date: '2025-12-31', type: 'vencimiento' },
+      { label: 'Pago contribuciones', date: '2025-06-30', type: 'pago' },
+    ],
   },
   {
     id: 3,
@@ -42,9 +78,34 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 4_850,
     availability: 'arrendar',
     category: 'loft',
+    ownerId: 3,
     ownerName: 'Jorge Alarcón',
     contact: '+56 9 6641 5577',
     location: 'Ñuñoa, RM',
+    program: { bedrooms: 1, bathrooms: 1, construction: 45 },
+    utilities: {
+      electricity: 'al-dia', electricityBill: 'ELE-2026-04-00211',
+      water: 'al-dia', waterBill: 'AGU-2026-04-00098',
+      gas: 'no-aplica',
+    },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2021-11-03' },
+    ],
+    importantDates: [
+      { label: 'Revisión instalaciones', date: '2025-09-15', type: 'revision' },
+    ],
+    financials: {
+      monthlyRentCLP: 480_000,
+      administrationPct: 10,
+      administrationAmount: 48_000,
+      paymentDueDay: 10,
+      nextPaymentDate: '2026-05-10',
+      transferStatus: 'atrasado',
+      pendingItems: [
+        { concept: 'arriendo', amount: 480_000 },
+        { concept: 'electricidad', amount: 32_000 },
+      ],
+    },
   },
   {
     id: 4,
@@ -54,9 +115,41 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 42_000,
     availability: 'no-disponible',
     category: 'casa',
+    ownerId: 4,
     ownerName: 'Isabela Torres',
     contact: '+56 9 9934 1122',
     location: 'Vitacura, RM',
+    tenantId: 8,
+    program: { bedrooms: 5, bathrooms: 4, parkings: 3, terrain: 800, construction: 420 },
+    utilities: {
+      electricity: 'al-dia', electricityBill: 'ELE-2026-04-00891',
+      water: 'pendiente', waterBill: 'AGU-2026-04-00402',
+      gas: 'al-dia', gasBill: 'GAS-2026-04-00215',
+    },
+    documents: [
+      { id: 1, name: 'Contrato de arriendo', type: 'contrato', date: '2024-07-01' },
+      { id: 2, name: 'Escritura de dominio', type: 'escritura', date: '2010-04-22' },
+      { id: 3, name: 'Inventario de bienes', type: 'otro', date: '2024-06-28' },
+    ],
+    importantDates: [
+      { label: 'Inicio contrato', date: '2024-07-01', type: 'inicio' },
+      { label: 'Vencimiento contrato', date: '2025-07-01', type: 'vencimiento' },
+      { label: 'Revisión semestral', date: '2025-01-01', type: 'revision' },
+      { label: 'Pago arriendo', date: '2025-05-05', type: 'pago' },
+    ],
+    financials: {
+      monthlyRentCLP: 2_100_000,
+      administrationPct: 10,
+      administrationAmount: 210_000,
+      paymentDueDay: 5,
+      nextPaymentDate: '2026-05-05',
+      lastPaymentDate: '2026-03-05',
+      transferStatus: 'parcial',
+      pendingItems: [
+        { concept: 'arriendo', amount: 2_100_000 },
+        { concept: 'agua', amount: 48_500 },
+      ],
+    },
   },
   {
     id: 5,
@@ -66,9 +159,19 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 11_400,
     availability: 'venta',
     category: 'oficina',
+    ownerId: 5,
     ownerName: 'Andrés Poblete',
     contact: '+56 9 5500 8844',
     location: 'Santiago Centro, RM',
+    program: { parkings: 8, construction: 320 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2018-02-14' },
+      { id: 2, name: 'Certificado LEED Gold', type: 'certificado', date: '2019-06-01' },
+    ],
+    importantDates: [
+      { label: 'Pago contribuciones', date: '2025-06-30', type: 'pago' },
+    ],
   },
   {
     id: 6,
@@ -78,9 +181,19 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 5_600,
     availability: 'arrendar',
     category: 'departamento',
+    ownerId: 6,
     ownerName: 'Valentina Riquelme',
     contact: '+56 9 7100 4455',
     location: 'La Florida, RM',
+    program: { bedrooms: 3, bathrooms: 2, parkings: 1, construction: 90 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'pendiente' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2020-05-18' },
+      { id: 2, name: 'Reglamento de copropiedad', type: 'otro', date: '2020-05-18' },
+    ],
+    importantDates: [
+      { label: 'Pago gastos comunes', date: '2025-05-10', type: 'pago' },
+    ],
   },
   {
     id: 7,
@@ -90,9 +203,19 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 9_800,
     availability: 'venta',
     category: 'casa',
+    ownerId: 7,
     ownerName: 'Felipe Mora',
     contact: '+56 9 8230 6677',
     location: 'Maipú, RM',
+    program: { bedrooms: 3, bathrooms: 2, parkings: 2, terrain: 180, construction: 120 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'al-dia' },
+    documents: [
+      { id: 1, name: 'Permiso de edificación', type: 'certificado', date: '2023-04-10' },
+      { id: 2, name: 'Recepción final obras', type: 'certificado', date: '2024-09-01' },
+    ],
+    importantDates: [
+      { label: 'Garantía construcción', date: '2029-09-01', type: 'vencimiento' },
+    ],
   },
   {
     id: 8,
@@ -102,9 +225,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 6_300,
     availability: 'arrendar',
     category: 'cabaña',
+    ownerId: 8,
     ownerName: 'Marcela Soto',
     contact: '+56 9 9011 3322',
     location: 'Lo Barnechea, RM',
+    program: { bedrooms: 2, bathrooms: 1, parkings: 1, terrain: 600, construction: 80 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2017-12-05' },
+    ],
+    importantDates: [
+      { label: 'Revisión instalaciones', date: '2025-11-01', type: 'revision' },
+    ],
   },
   {
     id: 9,
@@ -114,9 +246,23 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 22_000,
     availability: 'no-disponible',
     category: 'casa',
+    ownerId: 9,
     ownerName: 'Cristian Vidal',
     contact: '+56 9 6655 8899',
     location: 'Peñalolén, RM',
+    tenantId: 24,
+    program: { bedrooms: 4, bathrooms: 3, parkings: 3, terrain: 700, construction: 250 },
+    utilities: { electricity: 'al-dia', water: 'pendiente', gas: 'al-dia' },
+    documents: [
+      { id: 1, name: 'Contrato de arriendo', type: 'contrato', date: '2023-11-01' },
+      { id: 2, name: 'Escritura de dominio', type: 'escritura', date: '2008-07-14' },
+      { id: 3, name: 'Boleta garantía', type: 'boleta', date: '2023-10-28' },
+    ],
+    importantDates: [
+      { label: 'Inicio contrato', date: '2023-11-01', type: 'inicio' },
+      { label: 'Vencimiento contrato', date: '2025-11-01', type: 'vencimiento' },
+      { label: 'Pago arriendo', date: '2025-05-01', type: 'pago' },
+    ],
   },
   {
     id: 10,
@@ -126,9 +272,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 8_900,
     availability: 'venta',
     category: 'local comercial',
+    ownerId: 10,
     ownerName: 'Patricia Núñez',
     contact: '+56 9 5522 7700',
     location: 'Bellavista, RM',
+    program: { parkings: 0, construction: 80 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2013-09-30' },
+    ],
+    importantDates: [
+      { label: 'Pago contribuciones', date: '2025-09-30', type: 'pago' },
+    ],
   },
   {
     id: 11,
@@ -138,9 +293,19 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 14_200,
     availability: 'venta',
     category: 'parcela',
+    ownerId: 11,
     ownerName: 'Manuel Herrera',
     contact: '+56 9 7788 0011',
     location: 'Buin, RM',
+    program: { bedrooms: 3, bathrooms: 2, parkings: 4, terrain: 5_000, construction: 160 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2005-03-17' },
+      { id: 2, name: 'Certificado de agua potable', type: 'certificado', date: '2024-02-20' },
+    ],
+    importantDates: [
+      { label: 'Renovación permisos', date: '2026-01-15', type: 'vencimiento' },
+    ],
   },
   {
     id: 12,
@@ -150,9 +315,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 6_750,
     availability: 'arrendar',
     category: 'departamento',
+    ownerId: 12,
     ownerName: 'Sofía Leiva',
     contact: '+56 9 8899 2244',
     location: 'Barrio Italia, RM',
+    program: { bedrooms: 2, bathrooms: 1, construction: 70 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'al-dia' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2022-08-11' },
+    ],
+    importantDates: [
+      { label: 'Pago gastos comunes', date: '2025-05-10', type: 'pago' },
+    ],
   },
   {
     id: 13,
@@ -162,9 +336,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 12_500,
     availability: 'venta',
     category: 'bodega',
+    ownerId: 13,
     ownerName: 'Roberto Castillo',
     contact: '+56 9 7755 1199',
     location: 'Estación Central, RM',
+    program: { construction: 500 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2011-05-09' },
+    ],
+    importantDates: [
+      { label: 'Revisión sistema frigorífico', date: '2025-08-01', type: 'revision' },
+    ],
   },
   {
     id: 14,
@@ -174,21 +357,39 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 15_800,
     availability: 'arrendar',
     category: 'estacionamiento',
+    ownerId: 14,
     ownerName: 'Francisca Valenzuela',
     contact: '+56 9 8822 4466',
     location: 'Lastarria, RM',
+    program: { parkings: 40, construction: 120 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2016-10-02' },
+    ],
+    importantDates: [
+      { label: 'Revisión sistema CCTV', date: '2025-07-15', type: 'revision' },
+    ],
   },
   {
     id: 15,
     images: ['https://images.unsplash.com/photo-1602882223897-6f5bb5d8d8f5?w=600&q=80'],
     name: 'Galpon Renca',
-    description: 'Galpón de 1.200 m² con techumbre metálica, piso de hormigón reforzado y acceso con portón industrial. Ideal para manufactura o logística.',
+    description: 'Galpón de 1.200 m² con techumbre metálica, piso de hormigón reforzado y acceso con portón industrial.',
     valueUF: 18_900,
     availability: 'venta',
     category: 'galpon',
+    ownerId: 15,
     ownerName: 'Gonzalo Ruiz',
     contact: '+56 9 9933 5588',
     location: 'Renca, RM',
+    program: { construction: 1_200 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2009-12-20' },
+    ],
+    importantDates: [
+      { label: 'Revisión estructura', date: '2025-10-01', type: 'revision' },
+    ],
   },
   {
     id: 16,
@@ -198,9 +399,19 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 65_000,
     availability: 'venta',
     category: 'penthouse',
+    ownerId: 16,
     ownerName: 'Alejandra Sánchez',
     contact: '+56 9 8811 7722',
     location: 'Bella Vista, RM',
+    program: { bedrooms: 4, bathrooms: 4, parkings: 2, construction: 380 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'al-dia' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2020-01-15' },
+      { id: 2, name: 'Certificado de edificación', type: 'certificado', date: '2019-11-01' },
+    ],
+    importantDates: [
+      { label: 'Tasación vigente hasta', date: '2025-12-31', type: 'vencimiento' },
+    ],
   },
   {
     id: 17,
@@ -210,9 +421,19 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 19_200,
     availability: 'arrendar',
     category: 'casa comercial',
+    ownerId: 17,
     ownerName: 'Diego Fernández',
     contact: '+56 9 7744 9966',
     location: 'Alameda, RM',
+    program: { parkings: 5, construction: 250 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'al-dia' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2014-06-30' },
+      { id: 2, name: 'Patente comercial', type: 'certificado', date: '2025-01-02' },
+    ],
+    importantDates: [
+      { label: 'Renovación patente', date: '2026-01-02', type: 'vencimiento' },
+    ],
   },
   {
     id: 18,
@@ -222,9 +443,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 95_000,
     availability: 'venta',
     category: 'comercial e industrial',
+    ownerId: 18,
     ownerName: 'Emilio González',
     contact: '+56 9 6633 8811',
     location: 'San Miguel, RM',
+    program: { construction: 5_000 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'al-dia' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2000-11-05' },
+    ],
+    importantDates: [
+      { label: 'Pago contribuciones', date: '2025-09-30', type: 'pago' },
+    ],
   },
   {
     id: 19,
@@ -234,9 +464,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 35_000,
     availability: 'venta',
     category: 'sitio',
+    ownerId: 19,
     ownerName: 'Natalia Rojas',
     contact: '+56 9 5599 7744',
     location: 'Mapocho, RM',
+    program: { terrain: 1_500 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2018-04-22' },
+    ],
+    importantDates: [
+      { label: 'Pago contribuciones', date: '2025-06-30', type: 'pago' },
+    ],
   },
   {
     id: 20,
@@ -246,9 +485,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 48_000,
     availability: 'venta',
     category: 'terreno urbano',
+    ownerId: 20,
     ownerName: 'Patricio Morales',
     contact: '+56 9 7788 2233',
     location: 'Quilicura, RM',
+    program: { terrain: 2_000 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2022-07-19' },
+    ],
+    importantDates: [
+      { label: 'Pago contribuciones', date: '2025-09-30', type: 'pago' },
+    ],
   },
   {
     id: 21,
@@ -258,9 +506,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 72_000,
     availability: 'arrendar',
     category: 'terreno comercial',
+    ownerId: 21,
     ownerName: 'Ricardo Valdivia',
     contact: '+56 9 8844 5511',
     location: 'Pudahuel, RM',
+    program: { terrain: 3_500 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2019-09-03' },
+    ],
+    importantDates: [
+      { label: 'Renovación permiso uso suelo', date: '2026-03-01', type: 'vencimiento' },
+    ],
   },
   {
     id: 22,
@@ -270,9 +527,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 8_900,
     availability: 'arrendar',
     category: 'departamento',
+    ownerId: 22,
     ownerName: 'Verónica Muñoz',
     contact: '+56 9 6622 3399',
     location: 'Costanera, RM',
+    program: { bedrooms: 2, bathrooms: 2, parkings: 1, construction: 85 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'al-dia' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2023-03-08' },
+    ],
+    importantDates: [
+      { label: 'Pago gastos comunes', date: '2025-05-10', type: 'pago' },
+    ],
   },
   {
     id: 23,
@@ -282,9 +548,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 54_000,
     availability: 'venta',
     category: 'casa',
+    ownerId: 23,
     ownerName: 'Victoria Mora',
     contact: '+56 9 9955 6622',
     location: 'Colina, RM',
+    program: { bedrooms: 3, bathrooms: 3, parkings: 2, terrain: 1_200, construction: 280 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'al-dia' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2016-08-27' },
+    ],
+    importantDates: [
+      { label: 'Tasación vigente hasta', date: '2025-12-31', type: 'vencimiento' },
+    ],
   },
   {
     id: 24,
@@ -294,9 +569,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 7_600,
     availability: 'arrendar',
     category: 'cabaña',
+    ownerId: 24,
     ownerName: 'Lorena Sepúlveda',
     contact: '+56 9 7566 1188',
     location: 'Melipilla, RM',
+    program: { bedrooms: 2, bathrooms: 1, parkings: 2, terrain: 2_000, construction: 150 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2018-11-14' },
+    ],
+    importantDates: [
+      { label: 'Revisión instalaciones', date: '2025-12-01', type: 'revision' },
+    ],
   },
   {
     id: 25,
@@ -306,9 +590,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 5_200,
     availability: 'arrendar',
     category: 'loft',
+    ownerId: 25,
     ownerName: 'Andrés Salinas',
     contact: '+56 9 8877 4422',
     location: 'Santiago Centro, RM',
+    program: { bedrooms: 1, bathrooms: 1, construction: 180 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2021-02-03' },
+    ],
+    importantDates: [
+      { label: 'Pago gastos comunes', date: '2025-05-10', type: 'pago' },
+    ],
   },
   {
     id: 26,
@@ -318,9 +611,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 2_800,
     availability: 'arrendar',
     category: 'oficina',
+    ownerId: 26,
     ownerName: 'Tamara Reyes',
     contact: '+56 9 5577 8899',
     location: 'Merced, RM',
+    program: { parkings: 2, construction: 100 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2020-09-22' },
+    ],
+    importantDates: [
+      { label: 'Renovación patente', date: '2026-01-02', type: 'vencimiento' },
+    ],
   },
   {
     id: 27,
@@ -330,9 +632,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 32_000,
     availability: 'venta',
     category: 'bodega',
+    ownerId: 27,
     ownerName: 'Sergio Bravo',
     contact: '+56 9 9988 3344',
     location: 'Mapocho, RM',
+    program: { construction: 2_000 },
+    utilities: { electricity: 'al-dia', water: 'al-dia', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2012-06-18' },
+    ],
+    importantDates: [
+      { label: 'Revisión climatización', date: '2025-08-15', type: 'revision' },
+    ],
   },
   {
     id: 28,
@@ -342,9 +653,18 @@ export const MOCK_PROPERTIES: ListingProperty[] = [
     valueUF: 9_500,
     availability: 'arrendar',
     category: 'estacionamiento',
+    ownerId: 28,
     ownerName: 'Paula Contreras',
     contact: '+56 9 8833 2211',
     location: 'Lastarria, RM',
+    program: { parkings: 25, construction: 200 },
+    utilities: { electricity: 'al-dia', water: 'no-aplica', gas: 'no-aplica' },
+    documents: [
+      { id: 1, name: 'Escritura de dominio', type: 'escritura', date: '2021-07-07' },
+    ],
+    importantDates: [
+      { label: 'Revisión accesos', date: '2025-06-01', type: 'revision' },
+    ],
   },
 ]
 

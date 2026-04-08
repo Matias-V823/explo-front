@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Search, X, ChevronDown, Check } from 'lucide-react'
 import type { FilterAvailability, PropertyCategory } from '../../types/properties'
-import { CATEGORIES } from '../CategoryDropdown'
+import { CATEGORIES } from '../../constants/categories'
 
 interface FilterCounts {
   total: number

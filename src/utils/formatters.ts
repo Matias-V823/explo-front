@@ -30,3 +30,7 @@ export function getGreeting(): string {
 export function formatMonthLabel(month: string): string {
   return month.slice(0, 3)
 }
+
+export function formatDateFull(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })
+}

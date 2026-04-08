@@ -1,7 +1,8 @@
 export type Availability = 'arrendar' | 'venta' | 'no-disponible'
 export type FilterAvailability = Availability | 'todas'
+export type UtilityStatus = 'al-dia' | 'pendiente' | 'cortado' | 'no-aplica'
 
-export type PropertyCategory = 
+export type PropertyCategory =
   | 'bodega'
   | 'cabaña'
   | 'casa'
@@ -19,6 +20,54 @@ export type PropertyCategory =
   | 'terreno comercial'
   | 'terreno urbano'
 
+export interface PropertyProgram {
+  bedrooms?: number
+  bathrooms?: number
+  parkings?: number
+  terrain?: number      // m²
+  construction?: number // m²
+}
+
+export interface PropertyUtilities {
+  electricity: UtilityStatus
+  electricityBill?: string
+  water: UtilityStatus
+  waterBill?: string
+  gas: UtilityStatus
+  gasBill?: string
+}
+
+export type TransferStatus = 'pagado' | 'pendiente' | 'parcial' | 'atrasado'
+
+export interface PendingItem {
+  concept: 'arriendo' | 'electricidad' | 'agua' | 'gas' | 'otro'
+  amount: number
+}
+
+export interface PropertyFinancials {
+  monthlyRentCLP: number
+  administrationPct: number
+  administrationAmount: number
+  paymentDueDay: number
+  nextPaymentDate: string
+  lastPaymentDate?: string
+  transferStatus: TransferStatus
+  pendingItems?: PendingItem[]
+}
+
+export interface PropertyDocument {
+  id: number
+  name: string
+  type: 'contrato' | 'escritura' | 'boleta' | 'certificado' | 'otro'
+  date: string
+}
+
+export interface ImportantDate {
+  label: string
+  date: string
+  type: 'vencimiento' | 'revision' | 'pago' | 'inicio'
+}
+
 export interface ListingProperty {
   id: number
   images: string[]
@@ -26,8 +75,15 @@ export interface ListingProperty {
   description: string
   valueUF: number
   availability: Availability
+  category: PropertyCategory
+  ownerId: number
   ownerName: string
   contact: string
   location: string
-  category: PropertyCategory
+  tenantId?: number
+  program: PropertyProgram
+  utilities: PropertyUtilities
+  documents: PropertyDocument[]
+  importantDates: ImportantDate[]
+  financials?: PropertyFinancials
 }
