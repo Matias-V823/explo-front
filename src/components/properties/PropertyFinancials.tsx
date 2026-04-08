@@ -28,11 +28,6 @@ export default function PropertyFinancials({ f }: { f: FinancialsData }) {
 
       <div className="flex gap-2.5 mb-4">
         <div className="flex-1 px-3.5 py-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.5px] text-zinc-400 mb-1">Arriendo</p>
-          <p className="text-md font-extrabold text-ink tracking-[-0.6px] leading-none">{fmt(f.monthlyRentCLP)}</p>
-          <p className="text-[10.5px] text-zinc-400 mt-1">Vence día {f.paymentDueDay} de cada mes</p>
-        </div>
-        <div className="flex-1 px-3.5 py-3">
           <p className="text-[10px] font-bold uppercase tracking-[0.5px] text-zinc-400 mb-1">Administración</p>
           <div className="flex items-baseline gap-2">
             <p className="text-md font-extrabold text-ink tracking-[-0.6px] leading-none">{fmt(f.administrationAmount)}</p>
