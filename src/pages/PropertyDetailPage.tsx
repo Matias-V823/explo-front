@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { Building2, MapPin, Pencil, UserRound } from 'lucide-react'
+import { Building2, MapPin, Pencil, Trash, UserRound } from 'lucide-react'
 import { MOCK_PROPERTIES, AVAILABILITY_CONFIG } from '../data/mockProperties'
 import PropertyImageGallery from '../components/properties/PropertyImageGallery'
 import PropertyPersonCard from '../components/properties/PropertyPersonCard'
@@ -81,13 +81,20 @@ export default function PropertyDetailPage() {
               {property.location}
             </div>
           </div>
-          <button
-            onClick={() => navigate(`/propiedades/${property.id}/editar`)}
-            className="flex items-center gap-2 px-5 py-2 bg-ink text-white text-[13px] font-semibold rounded-full hover:bg-ink/85 transition-colors cursor-pointer shrink-0 mt-1"
-          >
-            <Pencil size={12} strokeWidth={2.5} />
-            Editar
-          </button>
+          <div className='flex gap-2'>
+            <button
+              onClick={() => navigate(`/propiedades/${property.id}/editar`)}
+              className="flex items-center gap-2 px-2 py-2 bg-ink text-white text-[10px] font-semibold rounded-full hover:bg-ink/85 transition-colors cursor-pointer shrink-0 mt-1"
+            >
+              <Pencil size={12} strokeWidth={2.5} />
+            </button>
+            <button
+              onClick={() => navigate(`/propiedades/${property.id}/eliminar`)}
+              className="flex items-center gap-2 px-2 py-2 bg-red-600/90 text-white text-[10px] font-semibold rounded-full hover:bg-red-700 transition-colors cursor-pointer shrink-0 mt-1"
+            >
+              <Trash size={12} strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
 
         {/* Detail card */}
