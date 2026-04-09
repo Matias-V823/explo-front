@@ -1,5 +1,6 @@
-import { NavLink } from 'react-router-dom'
-import { Bell, Settings } from 'lucide-react'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { Bell, Settings, LogOut } from 'lucide-react'
+import { useAuthStore } from '../store/authStore'
 
 const navItems = [
   { to: '/', label: 'Home', end: true },
@@ -11,6 +12,20 @@ const navItems = [
 ]
 
 export default function Topbar() {
+  const { user, logout } = useAuthStore()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true })
+  }
+
+  const initials = user?.name
+    .split(' ')
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join('') ?? 'U'
+
   return (
     <header className="h-16 flex justify-between items-center px-8 gap-8 top-0 z-50">
       <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[rgba(0,0,0,0.1)] bg-card shrink-0">
@@ -45,8 +60,18 @@ export default function Topbar() {
             <Bell size={15} strokeWidth={1.8} />
             <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-danger border-[1.5px] border-white/80" />
           </button>
-          <button className="w-9 h-9 rounded-full bg-white border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-sm font-bold text-ink cursor-pointer">
-            V
+          <button
+            title={user?.name}
+            className="w-9 h-9 rounded-full bg-white border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-sm font-bold text-ink cursor-pointer"
+          >
+            {initials}
+          </button>
+          <button
+            onClick={handleLogout}
+            title="Cerrar sesión"
+            className="w-9 h-9 rounded-full bg-white border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-ink-3 hover:text-red-500 hover:border-red-200 transition-colors cursor-pointer"
+          >
+            <LogOut size={15} strokeWidth={1.8} />
           </button>
         </div>
       </div>
