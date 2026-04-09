@@ -17,7 +17,7 @@ export default function Topbar() {
 
   const handleLogout = () => {
     logout()
-    navigate('/login', { replace: true })
+    navigate('/iniciar-sesion', { replace: true })
   }
 
   const initials = user?.name
