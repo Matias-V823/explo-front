@@ -7,3 +7,9 @@ export interface Person {
   avatar?: string
   role: 'propietario' | 'arrendador' | 'agente'
 }
+
+export interface PersonOption {
+  id: number
+  name: string
+  paternalLastName: string
+}
