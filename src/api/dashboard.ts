@@ -1,11 +1,32 @@
 import type { DashboardData } from '../types'
+import { apiFetch } from './client'
+
+interface BackendUser {
+  id: number
+  keycloakId: string
+  name: string
+  paternalLastName: string
+  maternalLastName: string
+  email: string
+  phone: string
+  role: { id: number; name: string } | null
+  avatarUrl: string | null
+}
 
 export async function fetchDashboardData(): Promise<DashboardData> {
+  const response = await apiFetch('/users/me')
+  if (!response.ok) throw new Error('No se pudo obtener el perfil del usuario')
+  const backendUser: BackendUser = await response.json()
+
+  const fullName = [backendUser.name, backendUser.paternalLastName, backendUser.maternalLastName]
+    .filter(Boolean)
+    .join(' ')
+
   return {
     user: {
-      name: 'Gloria González Avila',
-      role: 'Agente Inmobiliario',
-      avatarUrl: 'https://www.toppropiedades.cl/imagenes/usuario_edffbd982a.jpg',
+      name: fullName || backendUser.email,
+      role: backendUser.role?.name ?? '',
+      avatarUrl: backendUser.avatarUrl ?? undefined,
     },
     metrics: [
       {
@@ -85,10 +106,6 @@ export async function fetchDashboardData(): Promise<DashboardData> {
       { id: 't3', title: 'Enviar boletas de abril', priority: 'media', done: true, dueDate: '2026-04-05', category: 'admin' },
       { id: 't4', title: 'Coordinar visita Vitacura 890', priority: 'media', done: false, dueDate: '2026-04-11', category: 'cliente' },
       { id: 't5', title: 'Actualizar tasación Ñuñoa 320', priority: 'baja', done: false, dueDate: '2026-04-15', category: 'documento' },
-      { id: 't6', title: 'Actualizar tasación Ñuñoa 320', priority: 'baja', done: false, dueDate: '2026-04-15', category: 'documento' },
-      { id: 't7', title: 'Actualizar tasación Ñuñoa 320', priority: 'baja', done: false, dueDate: '2026-04-15', category: 'documento' },
-      { id: 't8', title: 'Actualizar tasación Ñuñoa 320', priority: 'baja', done: false, dueDate: '2026-04-15', category: 'documento' },
-      { id: 't9', title: 'Actualizar tasación Ñuñoa 320', priority: 'baja', done: false, dueDate: '2026-04-15', category: 'documento' },
     ],
     calendarEvents: [
       { id: 'e1', title: 'Cobro — Providencia 831', date: '2026-04-08', type: 'cobro' },

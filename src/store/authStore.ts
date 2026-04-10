@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { loginWithBackend } from '../api/auth'
 
 interface AuthUser {
   id: string
@@ -10,40 +11,54 @@ interface AuthUser {
 
 interface AuthState {
   user: AuthUser | null
+  token: string | null
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
 }
 
-const MOCK_USER: AuthUser = {
-  id: '1',
-  name: 'Gloria González Avila',
-  email: 'gloria@explo.cl',
-  role: 'Agente Inmobiliario',
+function decodeJwtPayload(token: string): Record<string, unknown> {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    return JSON.parse(atob(base64)) as Record<string, unknown>
+  } catch {
+    return {}
+  }
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      token: null,
       isAuthenticated: false,
 
       login: async (email, password) => {
-        await new Promise((r) => setTimeout(r, 600))
-        if (email === 'gloria@explo.cl' && password === 'explo123') {
-          set({ user: MOCK_USER, isAuthenticated: true })
+        try {
+          const { access_token } = await loginWithBackend(email, password)
+          const payload = decodeJwtPayload(access_token)
+
+          const user: AuthUser = {
+            id: (payload.sub as string) ?? '',
+            name: (payload.name as string) ?? (payload.preferred_username as string) ?? email,
+            email: (payload.email as string) ?? email,
+            role: ((payload.realm_access as { roles?: string[] })?.roles?.[0]) ?? '',
+          }
+
+          set({ user, token: access_token, isAuthenticated: true })
           return { success: true }
+        } catch (err) {
+          return { success: false, error: err instanceof Error ? err.message : 'Error al iniciar sesión' }
         }
-        return { success: false, error: 'Correo o contraseña incorrectos' }
       },
 
       logout: () => {
-        set({ user: null, isAuthenticated: false })
+        set({ user: null, token: null, isAuthenticated: false })
       },
     }),
     {
       name: 'explo_auth',
-      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
     }
   )
 )
