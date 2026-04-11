@@ -1,6 +1,9 @@
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Building2, MapPin, Pencil, Trash, UserRound } from 'lucide-react'
-import { MOCK_PROPERTIES, AVAILABILITY_CONFIG } from '../data/mockProperties'
+import { Building2, Loader2, MapPin, Pencil, Trash, UserRound } from 'lucide-react'
+import { AVAILABILITY_CONFIG } from '../data/mockProperties'
+import { fetchProperty } from '../api/properties'
+import type { PropertyDetail } from '../api/properties'
 import PropertyImageGallery from '../components/properties/PropertyImageGallery'
 import PropertyPersonCard from '../components/properties/PropertyPersonCard'
 import PropertyUtilities from '../components/properties/PropertyUtilities'
@@ -12,10 +15,27 @@ import PropertyStats from '../components/properties/PropertyStats'
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [property, setProperty] = useState<PropertyDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
 
-  const property = MOCK_PROPERTIES.find(p => p.id === Number(id))
+  useEffect(() => {
+    if (!id) return
+    fetchProperty(Number(id))
+      .then(setProperty)
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false))
+  }, [id])
 
-  if (!property) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 size={24} strokeWidth={1.5} className="text-zinc-300 animate-spin" />
+      </div>
+    )
+  }
+
+  if (notFound || !property) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-3">
         <Building2 size={32} strokeWidth={1.4} className="text-zinc-300" />
@@ -49,9 +69,9 @@ export default function PropertyDetailPage() {
             Personas involucradas
           </p>
           <div className="flex gap-2.5">
-            <PropertyPersonCard personId={property.ownerId} role="owner" roleLabel="Propietario" />
-            {property.tenantId ? (
-              <PropertyPersonCard personId={property.tenantId} role="tenant" roleLabel="Arrendatario" />
+            <PropertyPersonCard person={property.owner} role="owner" roleLabel="Propietario" />
+            {property.tenant ? (
+              <PropertyPersonCard person={property.tenant} role="tenant" roleLabel="Arrendatario" />
             ) : (
               <div className="flex-1 rounded-2xl border border-dashed border-zinc-200 bg-white flex flex-col items-center justify-center gap-1.5 min-h-25">
                 <UserRound size={16} strokeWidth={1.4} className="text-zinc-300" />

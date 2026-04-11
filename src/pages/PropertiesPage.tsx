@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Building2, Plus } from 'lucide-react'
-import type { FilterAvailability, PropertyCategory } from '../types/properties'
-import { MOCK_PROPERTIES } from '../data/mockProperties'
+import { Building2, Plus, Loader2 } from 'lucide-react'
+import type { FilterAvailability, ListingProperty, PropertyCategory } from '../types/properties'
+import { fetchProperties } from '../api/properties'
 import PropertyCard from '../components/properties/PropertyCard'
 import Pagination from '../components/properties/Pagination'
 import FiltersSection from '../components/properties/PropertyFilters'
@@ -11,14 +11,24 @@ const PAGE_SIZE = 5
 
 export default function PropertiesPage() {
   const navigate = useNavigate()
+  const [properties, setProperties] = useState<ListingProperty[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [search, setSearch] = useState('')
   const [availability, setAvailability] = useState<FilterAvailability>('todas')
   const [category, setCategory] = useState<PropertyCategory | 'todas'>('todas')
   const [page, setPage] = useState(1)
 
+  useEffect(() => {
+    fetchProperties()
+      .then(setProperties)
+      .catch(() => setError(true))
+      .finally(() => setLoading(false))
+  }, [])
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim()
-    return MOCK_PROPERTIES.filter(p => {
+    return properties.filter(p => {
       const matchesSearch =
         !q ||
         p.name.toLowerCase().includes(q) ||
@@ -29,7 +39,7 @@ export default function PropertiesPage() {
       const matchesCategory = category === 'todas' || p.category === category
       return matchesSearch && matchesAvailability && matchesCategory
     })
-  }, [search, availability, category])
+  }, [properties, search, availability, category])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -51,10 +61,10 @@ export default function PropertiesPage() {
   }
 
   const counts = {
-    total: MOCK_PROPERTIES.length,
-    arrendar: MOCK_PROPERTIES.filter(p => p.availability === 'arrendar').length,
-    venta: MOCK_PROPERTIES.filter(p => p.availability === 'venta').length,
-    noDisponible: MOCK_PROPERTIES.filter(p => p.availability === 'no-disponible').length,
+    total: properties.length,
+    arrendar: properties.filter(p => p.availability === 'arrendar').length,
+    venta: properties.filter(p => p.availability === 'venta').length,
+    noDisponible: properties.filter(p => p.availability === 'no-disponible').length,
   }
 
   return (
@@ -63,7 +73,9 @@ export default function PropertiesPage() {
         <h1 className="text-[36px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1] mb-1">
           Propiedades
         </h1>
-        <p className="text-[13px] text-ink-3">{counts.total} propiedades registradas</p>
+        <p className="text-[13px] text-ink-3">
+          {loading ? 'Cargando…' : `${counts.total} propiedades registradas`}
+        </p>
       </div>
 
       <div className="flex items-center justify-between gap-3 mb-5">
@@ -85,9 +97,21 @@ export default function PropertiesPage() {
         </button>
       </div>
 
+      {loading && (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 size={24} strokeWidth={1.5} className="text-zinc-300 animate-spin" />
+        </div>
+      )}
 
+      {!loading && error && (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Building2 size={32} strokeWidth={1.4} className="text-zinc-300 mb-3" />
+          <p className="text-[14px] font-medium text-ink-3">Error al cargar las propiedades</p>
+          <p className="text-[12.5px] text-zinc-400 mt-1">Intenta recargar la página.</p>
+        </div>
+      )}
 
-      {paginated.length > 0 ? (
+      {!loading && !error && paginated.length > 0 && (
         <>
           <div className="flex flex-col gap-3">
             {paginated.map(property => (
@@ -108,7 +132,9 @@ export default function PropertiesPage() {
             onPage={setPage}
           />
         </>
-      ) : (
+      )}
+
+      {!loading && !error && paginated.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Building2 size={32} strokeWidth={1.4} className="text-zinc-300 mb-3" />
           <p className="text-[14px] font-medium text-ink-3">Sin resultados</p>

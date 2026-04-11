@@ -1,8 +1,7 @@
 import { Phone, Mail } from 'lucide-react'
-import { MOCK_PERSONS } from '../../data/mockPersons'
 
 interface Props {
-  personId: number
+  person: { name: string; email: string; phone: string }
   role: 'owner' | 'tenant'
   roleLabel: string
 }
@@ -11,10 +10,7 @@ function initials(name: string) {
   return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
 }
 
-export default function PropertyPersonCard({ personId, role, roleLabel }: Props) {
-  const person = MOCK_PERSONS.find(p => p.id === personId)
-  if (!person) return null
-
+export default function PropertyPersonCard({ person, role, roleLabel }: Props) {
   const isOwner = role === 'owner'
 
   return (

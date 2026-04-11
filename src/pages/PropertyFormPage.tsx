@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, Trash2, ImagePlus, X, Loader2, Check, UserPlus, Paperc
 import { MOCK_PROPERTIES } from '../data/mockProperties'
 import { fetchPersons } from '../api/persons'
 import { uploadImage, uploadDocument } from '../api/storage'
+import { createProperty } from '../api/properties'
 import type { Availability, PropertyCategory } from '../types/properties'
 import type { FormState, FormDocument } from '../types/propertyForm'
 import type { PersonOption } from '../types/persons'
@@ -62,6 +63,7 @@ export default function PropertyFormPage() {
   const [form, setForm] = useState<FormState>(() => buildInitial(id))
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingDocIndex, setUploadingDocIndex] = useState<number | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const [activeSection, setActiveSection] = useState('identidad')
   const [showPersonModal, setShowPersonModal] = useState(false)
   const [persons, setPersons] = useState<PersonOption[]>([])
@@ -147,10 +149,58 @@ export default function PropertyFormPage() {
     setActiveSection(sectionId)
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    console.log('submit:', form)
-    navigate('/propiedades')
+    if (uploadingImage || uploadingDocIndex !== null) return
+    setSubmitting(true)
+    try {
+      const { id } = await createProperty({
+        name: form.name,
+        description: form.description || undefined,
+        category: form.category,
+        availability: form.availability,
+        location: form.location,
+        contact: form.contact || undefined,
+        valueUF: form.valueUF ? Number(form.valueUF) : undefined,
+        images: form.images,
+        bedrooms: form.bedrooms ? Number(form.bedrooms) : undefined,
+        bathrooms: form.bathrooms ? Number(form.bathrooms) : undefined,
+        parkings: form.parkings ? Number(form.parkings) : undefined,
+        terrainM2: form.terrain ? Number(form.terrain) : undefined,
+        constructionM2: form.construction ? Number(form.construction) : undefined,
+        ownerId: Number(form.ownerId),
+        tenantId: form.tenantId ? Number(form.tenantId) : undefined,
+        utilities: {
+          electricity: form.electricity,
+          electricityBill: form.electricityBill || undefined,
+          water: form.water,
+          waterBill: form.waterBill || undefined,
+          gas: form.gas,
+          gasBill: form.gasBill || undefined,
+        },
+        financials: form.hasFinancials && form.monthlyRentCLP ? {
+          monthlyRentCLP: Number(form.monthlyRentCLP),
+          administrationPct: Number(form.administrationPct),
+          paymentDueDay: Number(form.paymentDueDay),
+        } : undefined,
+        documents: form.documents.filter(d => d.name && d.date).map(d => ({
+          name: d.name,
+          type: d.type,
+          date: d.date,
+          fileUrl: d.url || undefined,
+        })),
+        importantDates: form.importantDates.filter(d => d.label && d.date).map(d => ({
+          label: d.label,
+          date: d.date,
+          type: d.type,
+        })),
+      })
+      navigate(`/propiedades/${id}`)
+    } catch {
+      alert('Error al crear la propiedad')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -208,7 +258,9 @@ export default function PropertyFormPage() {
               Cancelar
             </button>
             <button type="submit"
-              className="h-9 px-4 rounded-xl bg-ink text-white text-[12.5px] font-semibold hover:bg-zinc-800 transition-colors cursor-pointer">
+              disabled={submitting || uploadingImage || uploadingDocIndex !== null}
+              className="h-9 px-4 rounded-xl bg-ink text-white text-[12.5px] font-semibold hover:bg-zinc-800 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+              {submitting && <Loader2 size={13} strokeWidth={2} className="animate-spin" />}
               {isEditing ? 'Guardar cambios' : 'Crear propiedad'}
             </button>
           </div>
@@ -315,7 +367,7 @@ export default function PropertyFormPage() {
                 <select value={form.tenantId} onChange={e => set('tenantId', e.target.value)}
                   disabled={personsLoading} className={selectCls}>
                   <option value="">{personsLoading ? 'Cargando…' : 'Sin inquilino'}</option>
-                  {persons.filter(p => p.roleId === 2).map(p => (
+                  {persons.filter(p => p.roleId === 3).map(p => (
                     <option key={p.id} value={p.id}>
                       {[p.name, p.paternalLastName].filter(Boolean).join(' ')}
                     </option>

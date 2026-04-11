@@ -78,7 +78,7 @@ export default function PropertyCard({ property, onView, onEdit, onDelete }: Pro
   const badge = AVAILABILITY_CONFIG[property.availability]
 
   return (
-    <div className="bg-white/80 rounded-2xl border border-white/60 shadow-sm flex overflow-hidden hover:-translate-y-px transition-transform duration-200 h-55">
+    <div className="bg-white/80 rounded-2xl border border-white/60 shadow-sm flex overflow-hidden hover:-translate-y-px transition-transform duration-200 h-60">
       {/* Image */}
       <div className="w-55 min-w-55 bg-zinc-100 relative overflow-hidden">
         <img

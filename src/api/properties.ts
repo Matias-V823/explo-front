@@ -1,0 +1,180 @@
+import { apiFetch } from './client'
+import type { ListingProperty, UtilityStatus } from '../types/properties'
+
+export interface PropertyPerson {
+  id: number
+  name: string
+  email: string
+  phone: string
+}
+
+export interface PropertyDetail extends ListingProperty {
+  owner: PropertyPerson
+  tenant?: PropertyPerson
+}
+
+type RawProperty = {
+  id: number
+  name: string
+  description: string
+  category: string
+  availability: string
+  location: string
+  contact: string
+  valueUF: number
+  images: string[]
+  bedrooms: number | null
+  bathrooms: number | null
+  parkings: number | null
+  terrainM2: number | null
+  constructionM2: number | null
+  owner: { id: number; name: string; paternalLastName: string; email: string; phone: string }
+  tenant: { id: number; name: string; paternalLastName: string; email: string; phone: string } | null
+  utilities: {
+    electricity: UtilityStatus
+    electricityBill?: string
+    water: UtilityStatus
+    waterBill?: string
+    gas: UtilityStatus
+    gasBill?: string
+  } | null
+  financials: {
+    monthlyRentCLP: number
+    administrationPct: number
+    administrationAmount: number
+    paymentDueDay: number
+    nextPaymentDate: string
+    lastPaymentDate?: string
+    transferStatus: string
+  } | null
+  documents: { id: number; name: string; type: string; date: string }[]
+  importantDates: { label: string; date: string; type: string }[]
+}
+
+function mapProperty(raw: RawProperty): ListingProperty {
+  return {
+    id: raw.id,
+    name: raw.name,
+    description: raw.description ?? '',
+    category: raw.category as ListingProperty['category'],
+    availability: raw.availability as ListingProperty['availability'],
+    location: raw.location,
+    contact: raw.contact ?? '',
+    valueUF: Number(raw.valueUF) || 0,
+    images: raw.images ?? [],
+    ownerId: raw.owner.id,
+    ownerName: [raw.owner.name, raw.owner.paternalLastName].filter(Boolean).join(' '),
+    tenantId: raw.tenant?.id,
+    program: {
+      bedrooms: raw.bedrooms ?? undefined,
+      bathrooms: raw.bathrooms ?? undefined,
+      parkings: raw.parkings ?? undefined,
+      terrain: raw.terrainM2 ?? undefined,
+      construction: raw.constructionM2 ?? undefined,
+    },
+    utilities: raw.utilities ?? {
+      electricity: 'no-aplica',
+      water: 'no-aplica',
+      gas: 'no-aplica',
+    },
+    financials: raw.financials ? {
+      monthlyRentCLP: raw.financials.monthlyRentCLP,
+      administrationPct: raw.financials.administrationPct,
+      administrationAmount: raw.financials.administrationAmount,
+      paymentDueDay: raw.financials.paymentDueDay,
+      nextPaymentDate: raw.financials.nextPaymentDate,
+      lastPaymentDate: raw.financials.lastPaymentDate,
+      transferStatus: raw.financials.transferStatus as NonNullable<PropertyDetail['financials']>['transferStatus'],
+    } : undefined,
+    documents: (raw.documents ?? []).map(d => ({
+      id: d.id,
+      name: d.name,
+      type: d.type as ListingProperty['documents'][0]['type'],
+      date: d.date,
+    })),
+    importantDates: (raw.importantDates ?? []).map(d => ({
+      label: d.label,
+      date: d.date,
+      type: d.type as ListingProperty['importantDates'][0]['type'],
+    })),
+  }
+}
+
+export async function fetchProperties(): Promise<ListingProperty[]> {
+  const res = await apiFetch('/properties')
+  if (!res.ok) throw new Error('Error al cargar las propiedades')
+  const data: RawProperty[] = await res.json()
+  return data.map(mapProperty)
+}
+
+export async function fetchProperty(id: number): Promise<PropertyDetail> {
+  const res = await apiFetch(`/properties/${id}`)
+  if (!res.ok) throw new Error('Propiedad no encontrada')
+  const raw: RawProperty = await res.json()
+  return {
+    ...mapProperty(raw),
+    owner: {
+      id: raw.owner.id,
+      name: [raw.owner.name, raw.owner.paternalLastName].filter(Boolean).join(' '),
+      email: raw.owner.email,
+      phone: raw.owner.phone,
+    },
+    tenant: raw.tenant ? {
+      id: raw.tenant.id,
+      name: [raw.tenant.name, raw.tenant.paternalLastName].filter(Boolean).join(' '),
+      email: raw.tenant.email,
+      phone: raw.tenant.phone,
+    } : undefined,
+  }
+}
+
+export interface CreatePropertyPayload {
+  name: string
+  description?: string
+  category: string
+  availability: string
+  location: string
+  contact?: string
+  valueUF?: number
+  images?: string[]
+  bedrooms?: number
+  bathrooms?: number
+  parkings?: number
+  terrainM2?: number
+  constructionM2?: number
+  ownerId: number
+  tenantId?: number
+  utilities: {
+    electricity: UtilityStatus
+    electricityBill?: string
+    water: UtilityStatus
+    waterBill?: string
+    gas: UtilityStatus
+    gasBill?: string
+  }
+  financials?: {
+    monthlyRentCLP: number
+    administrationPct: number
+    paymentDueDay: number
+  }
+  documents?: {
+    name: string
+    type: string
+    date: string
+    fileUrl?: string
+  }[]
+  importantDates?: {
+    label: string
+    date: string
+    type: string
+  }[]
+}
+
+export async function createProperty(payload: CreatePropertyPayload): Promise<{ id: number }> {
+  const res = await apiFetch('/properties', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw new Error('Error al crear la propiedad')
+  return res.json()
+}

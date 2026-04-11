@@ -6,7 +6,7 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
   const token = useAuthStore.getState().token;
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(init.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
     ...(init.headers as Record<string, string>),
   };
 
