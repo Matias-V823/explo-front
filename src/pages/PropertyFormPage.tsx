@@ -1,14 +1,14 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus, Trash2, ImagePlus, X, Loader2, Check, UserPlus } from 'lucide-react'
-import { MOCK_PERSONS } from '../data/mockPersons'
+import { ArrowLeft, Plus, Trash2, ImagePlus, X, Loader2, Check, UserPlus, Paperclip, FileText } from 'lucide-react'
 import { MOCK_PROPERTIES } from '../data/mockProperties'
-import { apiFetch } from '../api/client'
+import { fetchPersons } from '../api/persons'
+import { uploadImage, uploadDocument } from '../api/storage'
 import type { Availability, PropertyCategory } from '../types/properties'
-import type { FormState } from '../types/propertyForm'
+import type { FormState, FormDocument } from '../types/propertyForm'
 import type { PersonOption } from '../types/persons'
 import {
-  PROPERTY_CATEGORIES, DATE_TYPES, NAV_SECTIONS,
+  PROPERTY_CATEGORIES, DATE_TYPES, DOCUMENT_TYPES, NAV_SECTIONS,
   inputCls, selectCls, labelCls,
 } from '../constants/propertyForm'
 import SectionCard from '../components/properties/SectionCard'
@@ -26,7 +26,7 @@ function buildInitial(id?: string): FormState {
     water: 'al-dia', waterBill: '',
     gas: 'al-dia', gasBill: '',
     hasFinancials: false, monthlyRentCLP: '', administrationPct: '10', paymentDueDay: '5',
-    importantDates: [], images: [],
+    importantDates: [], images: [], documents: [],
   }
   const p = MOCK_PROPERTIES.find(x => x.id === Number(id))
   if (!p) return buildInitial(undefined)
@@ -49,6 +49,7 @@ function buildInitial(id?: string): FormState {
     paymentDueDay: p.financials ? String(p.financials.paymentDueDay) : '5',
     importantDates: p.importantDates.map(d => ({ label: d.label, date: d.date, type: d.type })),
     images: [...p.images],
+    documents: p.documents.map(d => ({ name: d.name, type: d.type, date: d.date, url: '' })),
   }
 }
 
@@ -60,12 +61,20 @@ export default function PropertyFormPage() {
 
   const [form, setForm] = useState<FormState>(() => buildInitial(id))
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadingDocIndex, setUploadingDocIndex] = useState<number | null>(null)
   const [activeSection, setActiveSection] = useState('identidad')
   const [showPersonModal, setShowPersonModal] = useState(false)
-  const [persons, setPersons] = useState<PersonOption[]>(
-    MOCK_PERSONS.map(p => ({ id: p.id, name: p.name, paternalLastName: '' }))
-  )
+  const [persons, setPersons] = useState<PersonOption[]>([])
+  const [personsLoading, setPersonsLoading] = useState(true)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const docFileInputRef = useRef<HTMLInputElement>(null)
+  const uploadingDocIndexRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    fetchPersons()
+      .then(setPersons)
+      .finally(() => setPersonsLoading(false))
+  }, [])
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -79,22 +88,47 @@ export default function PropertyFormPage() {
     })
   }
 
+  function setDoc(i: number, field: keyof FormDocument, value: string) {
+    setForm(prev => {
+      const docs = [...prev.documents]
+      docs[i] = { ...docs[i], [field]: value }
+      return { ...prev, documents: docs }
+    })
+  }
+
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     setUploadingImage(true)
     try {
-      const body = new FormData()
-      body.append('file', file)
-      const res = await apiFetch('/upload/image?folder=properties', { method: 'POST', headers: {}, body })
-      if (!res.ok) throw new Error()
-      const { url } = await res.json() as { url: string }
+      const url = await uploadImage(file, 'properties')
       setForm(prev => ({ ...prev, images: [...prev.images, url] }))
     } catch {
       alert('Error al subir la imagen')
     } finally {
       setUploadingImage(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  async function handleDocumentUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    const idx = uploadingDocIndexRef.current
+    if (!file || idx === null) return
+    setUploadingDocIndex(idx)
+    try {
+      const url = await uploadDocument(file, 'properties')
+      setForm(prev => {
+        const docs = [...prev.documents]
+        docs[idx] = { ...docs[idx], url, name: docs[idx].name || file.name }
+        return { ...prev, documents: docs }
+      })
+    } catch {
+      alert('Error al subir el documento')
+    } finally {
+      setUploadingDocIndex(null)
+      uploadingDocIndexRef.current = null
+      if (docFileInputRef.current) docFileInputRef.current.value = ''
     }
   }
 
@@ -126,7 +160,7 @@ export default function PropertyFormPage() {
       <aside className="w-52 shrink-0 self-start sticky top-6 flex flex-col gap-1 px-4 py-2">
 
         <button type="button" onClick={() => navigate('/propiedades')}
-          className="flex items-center gap-2 text-[12px] text-zinc-400 hover:text-ink transition-colors mb-4 mt-2">
+          className="flex items-center gap-2 text-[12px] text-zinc-400 hover:text-ink transition-colors mb-4 mt-2 cursor-pointer">
           <ArrowLeft size={13} strokeWidth={2} />
           Volver
         </button>
@@ -141,7 +175,7 @@ export default function PropertyFormPage() {
           const Icon = s.icon
           return (
             <button key={s.id} type="button" onClick={() => scrollTo(s.id)}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all group ${
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-left cursor-pointer transition-all group ${
                 isActive
                   ? 'bg-ink text-white'
                   : 'text-zinc-500 hover:bg-zinc-100 hover:text-ink'
@@ -267,9 +301,9 @@ export default function PropertyFormPage() {
               <div>
                 <label className={labelCls}>Propietario <span className="text-red-400">*</span></label>
                 <select value={form.ownerId} onChange={e => set('ownerId', e.target.value)}
-                  required className={selectCls}>
-                  <option value="">Seleccionar</option>
-                  {persons.map(p => (
+                  required disabled={personsLoading} className={selectCls}>
+                  <option value="">{personsLoading ? 'Cargando…' : 'Seleccionar'}</option>
+                  {persons.filter(p => p.roleId === 4).map(p => (
                     <option key={p.id} value={p.id}>
                       {[p.name, p.paternalLastName].filter(Boolean).join(' ')}
                     </option>
@@ -277,11 +311,11 @@ export default function PropertyFormPage() {
                 </select>
               </div>
               <div>
-                <label className={labelCls}>Arrendatario <span className="text-zinc-300 font-normal normal-case">opcional</span></label>
+                <label className={labelCls}>Inquilino <span className="text-zinc-300 font-normal normal-case">opcional</span></label>
                 <select value={form.tenantId} onChange={e => set('tenantId', e.target.value)}
-                  className={selectCls}>
-                  <option value="">Sin arrendatario</option>
-                  {persons.map(p => (
+                  disabled={personsLoading} className={selectCls}>
+                  <option value="">{personsLoading ? 'Cargando…' : 'Sin inquilino'}</option>
+                  {persons.filter(p => p.roleId === 2).map(p => (
                     <option key={p.id} value={p.id}>
                       {[p.name, p.paternalLastName].filter(Boolean).join(' ')}
                     </option>
@@ -370,6 +404,60 @@ export default function PropertyFormPage() {
           </div>
           <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp"
             className="hidden" onChange={handleImageUpload} />
+          <div className="border-t border-zinc-100 pt-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className={`${labelCls} mb-0`}>Documentos</p>
+              <button type="button" onClick={() => setForm(p => ({
+                  ...p, documents: [...p.documents, { name: '', type: 'contrato', date: '', url: '' }]
+                }))}
+                className="flex items-center gap-1 text-[11.5px] font-medium text-zinc-400 hover:text-ink transition-colors">
+                <Plus size={12} /> Agregar
+              </button>
+            </div>
+            {form.documents.length === 0 && (
+              <p className="text-[12.5px] text-zinc-400 text-center py-4">Sin documentos adjuntos</p>
+            )}
+            <div className="flex flex-col gap-2">
+              {form.documents.map((doc, i) => (
+                <div key={i} className="grid grid-cols-[160px_1fr_140px_auto_32px] gap-2 items-center">
+                  <select value={doc.type} onChange={e => setDoc(i, 'type', e.target.value)}
+                    className="h-9 px-2.5 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12px] text-ink focus:outline-none appearance-none">
+                    {DOCUMENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  </select>
+                  <input value={doc.name} onChange={e => setDoc(i, 'name', e.target.value)}
+                    placeholder="Nombre del documento"
+                    className="h-9 px-3 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12.5px] text-ink placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition-colors" />
+                  <input type="date" value={doc.date} onChange={e => setDoc(i, 'date', e.target.value)}
+                    className="h-9 px-3 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12.5px] text-ink focus:outline-none focus:border-zinc-400 focus:bg-white transition-colors" />
+                  <button type="button" disabled={uploadingDocIndex === i}
+                    onClick={() => {
+                      uploadingDocIndexRef.current = i
+                      docFileInputRef.current?.click()
+                    }}
+                    className={`flex items-center gap-1.5 h-9 px-3 rounded-lg border text-[11.5px] font-medium transition-colors whitespace-nowrap ${
+                      doc.url
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                        : 'border-zinc-200 bg-zinc-50 text-zinc-500 hover:bg-zinc-100 hover:text-ink'
+                    } disabled:opacity-50`}>
+                    {uploadingDocIndex === i
+                      ? <Loader2 size={12} strokeWidth={2} className="animate-spin" />
+                      : doc.url
+                        ? <FileText size={12} strokeWidth={2} />
+                        : <Paperclip size={12} strokeWidth={2} />
+                    }
+                    {uploadingDocIndex === i ? 'Subiendo…' : doc.url ? 'Adjunto' : 'Adjuntar'}
+                  </button>
+                  <button type="button" onClick={() => setForm(p => ({ ...p, documents: p.documents.filter((_, j) => j !== i) }))}
+                    className="w-8 h-9 flex items-center justify-center text-zinc-300 hover:text-red-400 transition-colors rounded-lg hover:bg-red-50">
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <input ref={docFileInputRef} type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+              className="hidden" onChange={handleDocumentUpload} />
+          </div>
 
           <div className="border-t border-zinc-100 pt-4">
             <div className="flex items-center justify-between mb-3">
@@ -416,8 +504,11 @@ export default function PropertyFormPage() {
               id: person.id,
               name: person.name,
               paternalLastName: person.paternalLastName,
+              roleId: person.role.id,
             }])
-            set('ownerId', String(person.id))
+            const isOwner = person.role.id === 4
+            if (isOwner) set('ownerId', String(person.id))
+            else set('tenantId', String(person.id))
             setShowPersonModal(false)
           }}
         />

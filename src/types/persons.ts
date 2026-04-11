@@ -12,4 +12,5 @@ export interface PersonOption {
   id: number
   name: string
   paternalLastName: string
+  roleId: number
 }

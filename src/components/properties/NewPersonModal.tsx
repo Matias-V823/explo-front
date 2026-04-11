@@ -1,33 +1,20 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { X, Loader2 } from 'lucide-react'
-import { apiFetch } from '../../api/client'
-
-interface CreatedPerson {
-  id: number
-  name: string
-  paternalLastName: string
-  maternalLastName: string
-  email: string
-  phone: string
-  role: { id: number; name: string }
-}
-
-interface Role {
-  id: number
-  name: string
-}
+import { createPerson } from '../../api/persons'
+import { fetchRoles, type RoleOption } from '../../api/roles'
+import type { CreatedPersonResponse } from '../../api/persons'
 
 interface Props {
   onClose: () => void
-  onCreated: (person: CreatedPerson) => void
+  onCreated: (person: CreatedPersonResponse) => void
 }
 
 const inputCls = 'w-full h-7 px-2.5 rounded-md bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[11.5px] text-ink placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition-colors'
 const labelCls = 'block text-[9px] font-semibold text-zinc-400 tracking-[0.5px] uppercase mb-1'
 
 export default function NewPersonModal({ onClose, onCreated }: Props) {
-  const [roles, setRoles] = useState<Role[]>([])
+  const [roles, setRoles] = useState<RoleOption[]>([])
   const [rolesLoading, setRolesLoading] = useState(true)
   const [form, setForm] = useState({
     name: '', paternalLastName: '', maternalLastName: '',
@@ -37,9 +24,8 @@ export default function NewPersonModal({ onClose, onCreated }: Props) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    apiFetch('/roles')
-      .then(r => r.json())
-      .then((data: Role[]) => {
+    fetchRoles()
+      .then(data => {
         setRoles(data)
         if (data.length > 0) setForm(prev => ({ ...prev, roleName: data[0].name }))
       })
@@ -53,18 +39,11 @@ export default function NewPersonModal({ onClose, onCreated }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    e.stopPropagation()
     setError('')
     setLoading(true)
     try {
-      const res = await apiFetch('/persons', {
-        method: 'POST',
-        body: JSON.stringify(form),
-      })
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({})) as { message?: string }
-        throw new Error(err.message ?? 'Error al crear la persona')
-      }
-      const person = await res.json() as CreatedPerson
+      const person = await createPerson(form)
       onCreated(person)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error inesperado')
@@ -75,13 +54,10 @@ export default function NewPersonModal({ onClose, onCreated }: Props) {
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={onClose} />
 
-      {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
           <div>
             <h2 className="text-[15px] font-bold text-ink tracking-[-0.3px]">Nueva persona</h2>
@@ -93,10 +69,8 @@ export default function NewPersonModal({ onClose, onCreated }: Props) {
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
 
-          {/* Nombres */}
           <div>
             <label className={labelCls}>Nombre</label>
             <input value={form.name} onChange={e => set('name', e.target.value)}

@@ -1,4 +1,11 @@
-import type { Availability, PropertyCategory, UtilityStatus, ImportantDate } from './properties'
+import type { Availability, PropertyCategory, UtilityStatus, ImportantDate, PropertyDocument } from './properties'
+
+export type FormDocument = {
+  name: string
+  type: PropertyDocument['type']
+  date: string
+  url: string
+}
 
 export interface FormState {
   name: string
@@ -27,4 +34,5 @@ export interface FormState {
   paymentDueDay: string
   importantDates: { label: string; date: string; type: ImportantDate['type'] }[]
   images: string[]
+  documents: FormDocument[]
 }
