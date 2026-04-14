@@ -55,7 +55,7 @@ export default function HomePage() {
         </div>
 
         <div className="col-start-4 row-start-1 row-span-2">
-          <TaskList tasks={data.tasks} alerts={data.alerts} />
+          <TaskList alerts={data.alerts} />
         </div>
 
         <div className="col-start-1 row-start-2 min-h-70">
