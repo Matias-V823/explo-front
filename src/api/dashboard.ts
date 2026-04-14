@@ -26,7 +26,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     user: {
       name: fullName || backendUser.email,
       role: backendUser.role?.name ?? '',
-      avatarUrl: backendUser.avatarUrl ?? undefined,
+      avatarUrl: backendUser.avatarUrl! ?? undefined,
     },
     metrics: [
       {

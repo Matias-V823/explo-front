@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Building2, Loader2, MapPin, Pencil, Trash, UserRound } from 'lucide-react'
-import { AVAILABILITY_CONFIG } from '../data/mockProperties'
 import { fetchProperty } from '../api/properties'
 import type { PropertyDetail } from '../api/properties'
 import PropertyImageGallery from '../components/properties/PropertyImageGallery'
@@ -11,6 +10,7 @@ import PropertyFinancials from '../components/properties/PropertyFinancials'
 import PropertyDocumentList from '../components/properties/PropertyDocumentList'
 import PropertyDateList from '../components/properties/PropertyDateList'
 import PropertyStats from '../components/properties/PropertyStats'
+import { AVAILABILITY_CONFIG } from '../utils/property'
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>()

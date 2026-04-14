@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { Check, AlertTriangle } from 'lucide-react'
+import { Check, AlertTriangle, ArrowUpRight } from 'lucide-react'
 import { formatDate } from '../../utils/formatters'
+import { IconButton } from '@mui/material'
 import type { Task, Alert } from '../../types'
+import { useNavigate } from 'react-router-dom'
 
 interface TaskListProps {
   tasks: Task[]
@@ -23,6 +25,7 @@ const alertTypeColor: Record<string, string> = {
 export default function TaskList({ tasks: initialTasks, alerts }: TaskListProps) {
   const [tasks, setTasks] = useState(initialTasks)
   const [tab, setTab] = useState<'tasks' | 'alerts'>('tasks')
+  const navigate = useNavigate()
 
   const donePct = Math.round((tasks.filter((t) => t.done).length / tasks.length) * 100)
   const safePct = Math.round(
@@ -47,14 +50,23 @@ export default function TaskList({ tasks: initialTasks, alerts }: TaskListProps)
     <div className="card-dark p-5 max-h-150 flex flex-col bg-ink rounded-[20px] shadow-sm">
       {/* Header */}
       <div className="flex justify-between items-center mb-1">
-        <p className="text-base font-bold text-white tracking-[-0.3px]">
-          {tab === 'tasks' ? 'Tareas' : 'Alertas'}
-        </p>
-        <span className="text-[22px] font-extrabold text-white tracking-[-0.8px]">
-          {tab === 'tasks'
-            ? `${tasks.filter((t) => t.done).length}/${tasks.length}`
-            : `${alerts.filter((a) => a.type === 'danger').length}/${alerts.length}`}
-        </span>
+        <div className='flex gap-2 justify-center items-center'>
+          <p className="text-lg font-bold text-white tracking-[-0.3px]">
+            {tab === 'tasks' ? 'Tareas' : 'Alertas'}
+          </p>
+          <span className="text-lg font-extrabold text-white tracking-[-0.8px]">
+            {tab === 'tasks'
+              ? `${tasks.filter((t) => t.done).length}/${tasks.length}`
+              : `${alerts.filter((a) => a.type === 'danger').length}/${alerts.length}`}
+          </span>
+        </div>
+        <IconButton
+          onClick={() => navigate('/tasks')}
+          size="small"
+          sx={{ width: 28, height: 28, borderRadius: '10px', border: '1px solid rgba(220,220,220,0.30)', cursor: 'pointer' }}
+        >
+          <ArrowUpRight size={14} color="#6b7280" />
+        </IconButton>
       </div>
 
       {/* Mini progress bars */}

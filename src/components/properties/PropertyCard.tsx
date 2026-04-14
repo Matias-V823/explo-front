@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { MapPin, User, Phone, MoreHorizontal, Eye, Pencil, Trash2 } from 'lucide-react'
 import type { ListingProperty } from '../../types/properties'
-import { AVAILABILITY_CONFIG } from '../../data/mockProperties'
+import { AVAILABILITY_CONFIG } from '../../utils/property'
 
 interface PropertyCardProps {
   property: ListingProperty

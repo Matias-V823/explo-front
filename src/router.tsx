@@ -11,6 +11,7 @@ import MapaPage from './pages/MapPage'
 import TransactionsPage from './pages/TransactionsPage'
 import PropertyFormPage from './pages/PropertyFormPage'
 import PropertyDetailPage from './pages/PropertyDetailPage'
+import TasksPage from './pages/TasksPage'
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
           { path: 'boletas', element: <TicketsPage /> },
           { path: 'mapa', element: <MapaPage /> },
           { path: 'transacciones', element: <TransactionsPage /> },
+          { path: 'tasks', element: <TasksPage /> }
         ],
       },
     ],

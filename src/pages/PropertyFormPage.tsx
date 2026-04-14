@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, ImagePlus, X, Loader2, Check, UserPlus, Paperclip, FileText } from 'lucide-react'
-import { MOCK_PROPERTIES } from '../data/mockProperties'
 import { fetchPersons } from '../api/persons'
 import { uploadImage, uploadDocument } from '../api/storage'
-import { createProperty } from '../api/properties'
+import { createProperty, fetchProperty } from '../api/properties'
 import type { Availability, PropertyCategory } from '../types/properties'
 import type { FormState, FormDocument } from '../types/propertyForm'
 import type { PersonOption } from '../types/persons'
@@ -17,41 +16,16 @@ import UtilityRow from '../components/properties/UtilityRow'
 import NewPersonModal from '../components/properties/NewPersonModal'
 
 
-function buildInitial(id?: string): FormState {
-  if (!id) return {
-    name: '', category: 'departamento', availability: 'arrendar',
-    location: '', valueUF: '', contact: '', description: '',
-    bedrooms: '', bathrooms: '', parkings: '', construction: '', terrain: '',
-    ownerId: '', tenantId: '',
-    electricity: 'al-dia', electricityBill: '',
-    water: 'al-dia', waterBill: '',
-    gas: 'al-dia', gasBill: '',
-    hasFinancials: false, monthlyRentCLP: '', administrationPct: '10', paymentDueDay: '5',
-    importantDates: [], images: [], documents: [],
-  }
-  const p = MOCK_PROPERTIES.find(x => x.id === Number(id))
-  if (!p) return buildInitial(undefined)
-  return {
-    name: p.name, category: p.category, availability: p.availability,
-    location: p.location, valueUF: String(p.valueUF), contact: p.contact,
-    description: p.description,
-    bedrooms: p.program.bedrooms != null ? String(p.program.bedrooms) : '',
-    bathrooms: p.program.bathrooms != null ? String(p.program.bathrooms) : '',
-    parkings: p.program.parkings != null ? String(p.program.parkings) : '',
-    construction: p.program.construction != null ? String(p.program.construction) : '',
-    terrain: p.program.terrain != null ? String(p.program.terrain) : '',
-    ownerId: String(p.ownerId), tenantId: p.tenantId ? String(p.tenantId) : '',
-    electricity: p.utilities.electricity, electricityBill: p.utilities.electricityBill ?? '',
-    water: p.utilities.water, waterBill: p.utilities.waterBill ?? '',
-    gas: p.utilities.gas, gasBill: p.utilities.gasBill ?? '',
-    hasFinancials: !!p.financials,
-    monthlyRentCLP: p.financials ? String(p.financials.monthlyRentCLP) : '',
-    administrationPct: p.financials ? String(p.financials.administrationPct) : '10',
-    paymentDueDay: p.financials ? String(p.financials.paymentDueDay) : '5',
-    importantDates: p.importantDates.map(d => ({ label: d.label, date: d.date, type: d.type })),
-    images: [...p.images],
-    documents: p.documents.map(d => ({ name: d.name, type: d.type, date: d.date, url: '' })),
-  }
+const EMPTY_FORM: FormState = {
+  name: '', category: 'departamento', availability: 'arrendar',
+  location: '', valueUF: '', contact: '', description: '',
+  bedrooms: '', bathrooms: '', parkings: '', construction: '', terrain: '',
+  ownerId: '', tenantId: '',
+  electricity: 'al-dia', electricityBill: '',
+  water: 'al-dia', waterBill: '',
+  gas: 'al-dia', gasBill: '',
+  hasFinancials: false, monthlyRentCLP: '', administrationPct: '10', paymentDueDay: '5',
+  importantDates: [], images: [], documents: [],
 }
 
 
@@ -60,7 +34,8 @@ export default function PropertyFormPage() {
   const navigate = useNavigate()
   const isEditing = id !== undefined
 
-  const [form, setForm] = useState<FormState>(() => buildInitial(id))
+  const [form, setForm] = useState<FormState>(EMPTY_FORM)
+  const [formLoading, setFormLoading] = useState(isEditing)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingDocIndex, setUploadingDocIndex] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -77,6 +52,44 @@ export default function PropertyFormPage() {
       .then(setPersons)
       .finally(() => setPersonsLoading(false))
   }, [])
+
+  useEffect(() => {
+    if (!isEditing || !id) return
+    fetchProperty(Number(id))
+      .then(p => {
+        setForm({
+          name: p.name,
+          category: p.category,
+          availability: p.availability,
+          location: p.location,
+          valueUF: String(p.valueUF),
+          contact: p.contact ?? '',
+          description: p.description ?? '',
+          bedrooms: p.program.bedrooms != null ? String(p.program.bedrooms) : '',
+          bathrooms: p.program.bathrooms != null ? String(p.program.bathrooms) : '',
+          parkings: p.program.parkings != null ? String(p.program.parkings) : '',
+          construction: p.program.construction != null ? String(p.program.construction) : '',
+          terrain: p.program.terrain != null ? String(p.program.terrain) : '',
+          ownerId: String(p.ownerId),
+          tenantId: p.tenantId ? String(p.tenantId) : '',
+          electricity: p.utilities.electricity,
+          electricityBill: p.utilities.electricityBill ?? '',
+          water: p.utilities.water,
+          waterBill: p.utilities.waterBill ?? '',
+          gas: p.utilities.gas,
+          gasBill: p.utilities.gasBill ?? '',
+          hasFinancials: !!p.financials,
+          monthlyRentCLP: p.financials ? String(p.financials.monthlyRentCLP) : '',
+          administrationPct: p.financials ? String(p.financials.administrationPct) : '10',
+          paymentDueDay: p.financials ? String(p.financials.paymentDueDay) : '5',
+          importantDates: p.importantDates.map(d => ({ label: d.label, date: d.date, type: d.type })),
+          images: [...p.images],
+          documents: p.documents.map(d => ({ name: d.name, type: d.type, date: d.date, url: '' })),
+        })
+      })
+      .catch(() => navigate('/propiedades'))
+      .finally(() => setFormLoading(false))
+  }, [id, isEditing])
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -201,6 +214,14 @@ export default function PropertyFormPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (formLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 size={24} strokeWidth={1.5} className="text-zinc-300 animate-spin" />
+      </div>
+    )
   }
 
   return (
