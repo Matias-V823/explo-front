@@ -2,11 +2,6 @@ import { FileText } from 'lucide-react'
 import type { PropertyDocument } from '../../types/properties'
 import { formatDateFull } from '../../utils/formatters'
 
-const DOC_LABEL: Record<string, string> = {
-  contrato: 'Contrato', escritura: 'Escritura',
-  boleta: 'Boleta', certificado: 'Certificado', otro: 'Otro',
-}
-
 export default function PropertyDocumentList({ documents }: { documents: PropertyDocument[] }) {
   if (documents.length === 0) return null
 
@@ -25,7 +20,7 @@ export default function PropertyDocumentList({ documents }: { documents: Propert
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <span className="text-[11px] text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-full">
-                {DOC_LABEL[doc.type]}
+                {doc.documentType.name}
               </span>
               <span className="text-[11px] text-zinc-400">{formatDateFull(doc.date)}</span>
             </div>

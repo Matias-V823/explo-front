@@ -47,7 +47,7 @@ type RawProperty = {
     lastPaymentDate?: string
     transferStatus: string
   } | null
-  documents: { id: number; name: string; type: string; date: string }[]
+  documents: { id: number; name: string; documentType: { id: number; name: string }; date: string }[]
   importantDates: { label: string; date: string; type: string }[]
 }
 
@@ -89,7 +89,7 @@ function mapProperty(raw: RawProperty): ListingProperty {
     documents: (raw.documents ?? []).map(d => ({
       id: d.id,
       name: d.name,
-      type: d.type as ListingProperty['documents'][0]['type'],
+      documentType: d.documentType,
       date: d.date,
     })),
     importantDates: (raw.importantDates ?? []).map(d => ({
@@ -159,7 +159,7 @@ export interface CreatePropertyPayload {
   }
   documents?: {
     name: string
-    type: string
+    documentTypeId: number
     date: string
     fileUrl?: string
   }[]
@@ -168,6 +168,12 @@ export interface CreatePropertyPayload {
     date: string
     type: string
   }[]
+}
+
+export async function fetchDocumentTypes(): Promise<{ id: number; name: string }[]> {
+  const res = await apiFetch('/properties/document-types')
+  if (!res.ok) throw new Error('Error al cargar los tipos de documento')
+  return res.json()
 }
 
 export async function createProperty(payload: CreatePropertyPayload): Promise<{ id: number }> {

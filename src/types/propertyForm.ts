@@ -1,8 +1,8 @@
-import type { Availability, PropertyCategory, UtilityStatus, ImportantDate, PropertyDocument } from './properties'
+import type { Availability, PropertyCategory, UtilityStatus, ImportantDate } from './properties'
 
 export type FormDocument = {
   name: string
-  type: PropertyDocument['type']
+  documentTypeId: number
   date: string
   url: string
 }

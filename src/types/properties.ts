@@ -58,7 +58,7 @@ export interface PropertyFinancials {
 export interface PropertyDocument {
   id: number
   name: string
-  type: 'contrato' | 'escritura' | 'boleta' | 'certificado' | 'otro'
+  documentType: { id: number; name: string }
   date: string
 }
 

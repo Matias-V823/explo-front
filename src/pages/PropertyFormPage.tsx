@@ -3,12 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, ImagePlus, X, Loader2, Check, UserPlus, Paperclip, FileText } from 'lucide-react'
 import { fetchPersons } from '../api/persons'
 import { uploadImage, uploadDocument } from '../api/storage'
-import { createProperty, fetchProperty } from '../api/properties'
+import { createProperty, fetchProperty, fetchDocumentTypes } from '../api/properties'
 import type { Availability, PropertyCategory } from '../types/properties'
 import type { FormState, FormDocument } from '../types/propertyForm'
 import type { PersonOption } from '../types/persons'
 import {
-  PROPERTY_CATEGORIES, DATE_TYPES, DOCUMENT_TYPES, NAV_SECTIONS,
+  PROPERTY_CATEGORIES, DATE_TYPES, NAV_SECTIONS,
   inputCls, selectCls, labelCls,
 } from '../constants/propertyForm'
 import SectionCard from '../components/properties/SectionCard'
@@ -43,6 +43,7 @@ export default function PropertyFormPage() {
   const [showPersonModal, setShowPersonModal] = useState(false)
   const [persons, setPersons] = useState<PersonOption[]>([])
   const [personsLoading, setPersonsLoading] = useState(true)
+  const [documentTypes, setDocumentTypes] = useState<{ id: number; name: string }[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const docFileInputRef = useRef<HTMLInputElement>(null)
   const uploadingDocIndexRef = useRef<number | null>(null)
@@ -51,6 +52,7 @@ export default function PropertyFormPage() {
     fetchPersons()
       .then(setPersons)
       .finally(() => setPersonsLoading(false))
+    fetchDocumentTypes().then(setDocumentTypes).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -84,7 +86,7 @@ export default function PropertyFormPage() {
           paymentDueDay: p.financials ? String(p.financials.paymentDueDay) : '5',
           importantDates: p.importantDates.map(d => ({ label: d.label, date: d.date, type: d.type })),
           images: [...p.images],
-          documents: p.documents.map(d => ({ name: d.name, type: d.type, date: d.date, url: '' })),
+          documents: p.documents.map(d => ({ name: d.name, documentTypeId: d.documentType.id, date: d.date, url: '' })),
         })
       })
       .catch(() => navigate('/propiedades'))
@@ -106,7 +108,8 @@ export default function PropertyFormPage() {
   function setDoc(i: number, field: keyof FormDocument, value: string) {
     setForm(prev => {
       const docs = [...prev.documents]
-      docs[i] = { ...docs[i], [field]: value }
+      const parsed = field === 'documentTypeId' ? Number(value) : value
+      docs[i] = { ...docs[i], [field]: parsed }
       return { ...prev, documents: docs }
     })
   }
@@ -196,9 +199,9 @@ export default function PropertyFormPage() {
           administrationPct: Number(form.administrationPct),
           paymentDueDay: Number(form.paymentDueDay),
         } : undefined,
-        documents: form.documents.filter(d => d.name && d.date).map(d => ({
+        documents: form.documents.filter(d => d.name && d.date && d.documentTypeId).map(d => ({
           name: d.name,
-          type: d.type,
+          documentTypeId: d.documentTypeId,
           date: d.date,
           fileUrl: d.url || undefined,
         })),
@@ -481,7 +484,7 @@ export default function PropertyFormPage() {
             <div className="flex items-center justify-between mb-3">
               <p className={`${labelCls} mb-0`}>Documentos</p>
               <button type="button" onClick={() => setForm(p => ({
-                  ...p, documents: [...p.documents, { name: '', type: 'contrato', date: '', url: '' }]
+                  ...p, documents: [...p.documents, { name: '', documentTypeId: documentTypes[0]?.id ?? 0, date: '', url: '' }]
                 }))}
                 className="flex items-center gap-1 text-[11.5px] font-medium text-zinc-400 hover:text-ink transition-colors">
                 <Plus size={12} /> Agregar
@@ -493,9 +496,9 @@ export default function PropertyFormPage() {
             <div className="flex flex-col gap-2">
               {form.documents.map((doc, i) => (
                 <div key={i} className="grid grid-cols-[160px_1fr_140px_auto_32px] gap-2 items-center">
-                  <select value={doc.type} onChange={e => setDoc(i, 'type', e.target.value)}
+                  <select value={doc.documentTypeId} onChange={e => setDoc(i, 'documentTypeId', e.target.value)}
                     className="h-9 px-2.5 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12px] text-ink focus:outline-none appearance-none">
-                    {DOCUMENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    {documentTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                   </select>
                   <input value={doc.name} onChange={e => setDoc(i, 'name', e.target.value)}
                     placeholder="Nombre del documento"
