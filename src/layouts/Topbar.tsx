@@ -9,6 +9,7 @@ const navItems = [
   { to: '/boletas', label: 'Boletas' },
   { to: '/mapa', label: 'Mapa' },
   { to: '/transacciones', label: 'Transacciones' },
+  { to: '/calendario', label: 'Calendario' },
 ]
 
 export default function Topbar() {

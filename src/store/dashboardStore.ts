@@ -4,14 +4,16 @@ import type { DashboardData } from '../types'
 
 export function useDashboardData() {
   const [data, setData] = useState<DashboardData | null>(null)
+  const [userId, setUserId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchDashboardData().then((result) => {
-      setData(result)
+      setData(result.data)
+      setUserId(result.userId)
       setLoading(false)
     })
   }, [])
 
-  return { data, loading }
+  return { data, userId, loading }
 }
