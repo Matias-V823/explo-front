@@ -13,7 +13,12 @@ interface BackendUser {
   avatarUrl: string | null
 }
 
-export async function fetchDashboardData(): Promise<DashboardData> {
+export interface DashboardResult {
+  data: DashboardData
+  userId: number
+}
+
+export async function fetchDashboardData(): Promise<DashboardResult> {
   const response = await apiFetch('/users/me')
   if (!response.ok) throw new Error('No se pudo obtener el perfil del usuario')
   const backendUser: BackendUser = await response.json()
@@ -22,7 +27,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     .filter(Boolean)
     .join(' ')
 
-  return {
+  const data: DashboardData = {
     user: {
       name: fullName || backendUser.email,
       role: backendUser.role?.name ?? '',
@@ -134,4 +139,6 @@ export async function fetchDashboardData(): Promise<DashboardData> {
       { id: 'p7', address: 'Santiago Centro 890', status: 'disponible', monthlyRent: 480_000 },
     ],
   }
+
+  return { data, userId: backendUser.id }
 }

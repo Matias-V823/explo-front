@@ -3,6 +3,7 @@ import { Check, AlertTriangle, AlertCircle, Info, Plus, X, Bell, BellOff } from 
 import { LinearProgress, Tooltip } from '@mui/material'
 import { formatDate } from '../utils/formatters'
 import { useDashboardData } from '../store/dashboardStore'
+import { useTaskStore } from '../store/taskStore'
 import type { Task } from '../types'
 
 const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
@@ -45,29 +46,14 @@ const PRIORITY_DOT: Record<string, string> = {
 }
 
 const ALERT_ICON = { danger: AlertCircle, warning: AlertTriangle, info: Info }
-const ALERT_COLOR: Record<string, string> = { danger: '#dc2626', warning: '#d97706', info: '#2563eb' }
-const ALERT_CARD: Record<string, string> = {
-  danger: 'bg-red-50 border-red-200/80',
-  warning: 'bg-amber-50 border-amber-200/80',
-  info: 'bg-blue-50 border-blue-200/80',
-}
-const ALERT_TITLE: Record<string, string> = {
-  danger: 'text-red-900',
-  warning: 'text-amber-900',
-  info: 'text-blue-900',
-}
-const ALERT_DESC: Record<string, string> = {
-  danger: 'text-red-700/70',
-  warning: 'text-amber-700/70',
-  info: 'text-blue-700/70',
-}
+const ALERT_COLOR: Record<string, string> = { danger: '#E05050', warning: '#F2C94C', info: '#5B9DD6' }
 
 type StatusFilter = 'todas' | 'pendientes' | 'completadas'
 type PriorityFilter = 'todas' | 'alta' | 'media' | 'baja'
 
 const TasksPage = () => {
-  const { data, loading } = useDashboardData()
-  const [tasks, setTasks] = useState<Task[]>([])
+  const { data, userId, loading: dashLoading } = useDashboardData()
+  const { tasks, loading: tasksLoading, loadTasks, addTask, toggleTask } = useTaskStore()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pendientes')
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('todas')
   const [showForm, setShowForm] = useState(false)
@@ -83,12 +69,14 @@ const TasksPage = () => {
   const newCategoryInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (data) setTasks(data.tasks)
-  }, [data])
+    if (userId) loadTasks(userId)
+  }, [userId])
 
   useEffect(() => {
     if (addingCategory) newCategoryInputRef.current?.focus()
   }, [addingCategory])
+
+  const loading = dashLoading || tasksLoading
 
   const alerts = data?.alerts ?? []
 
@@ -128,17 +116,15 @@ const TasksPage = () => {
     setNewCategoryName('')
   }
 
-  const addTask = () => {
-    if (!newTitle.trim()) return
-    const task: Task = {
-      id: `t${Date.now()}`,
-      title: newTitle.trim(),
-      priority: newPriority,
-      done: false,
-      category: newCategory as Task['category'],
+  const handleAddTask = () => {
+    if (!newTitle.trim() || !userId) return
+    addTask({
+      description: newTitle.trim(),
+      importance: newPriority,
+      category: newCategory,
       dueDate: newDueDate || undefined,
-    }
-    setTasks((prev) => [task, ...prev])
+      userId,
+    })
     setNewTitle('')
     setNewDueDate('')
     setNewPriority('media')
@@ -146,8 +132,9 @@ const TasksPage = () => {
     setShowForm(false)
   }
 
-  const toggleTask = (id: string) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
+  const handleToggleTask = (id: string) => {
+    const task = tasks.find((t) => t.id === id)
+    if (task) toggleTask(id, !task.done)
   }
 
   if (loading) {
@@ -326,26 +313,26 @@ const TasksPage = () => {
 
       {/* Add form */}
       {showForm && (
-        <div className="bg-zinc-50/80 rounded-[20px] shadow-sm border border-[rgba(0,0,0,0.05)] p-4 mb-5">
+        <div className="bg-ink rounded-[20px] shadow-sm border border-white/6 p-4 mb-5">
           <div className="flex gap-2.5 flex-wrap items-center">
             <input
               autoFocus
               type="text"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && addTask()}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
               placeholder="Descripción de la tarea..."
-              className="flex-1 min-w-55 bg-white/80 border border-[rgba(0,0,0,0.08)] rounded-[9px] px-3.5 py-2 text-[13px] text-ink placeholder:text-[rgba(0,0,0,0.25)] focus:outline-none focus:border-[rgba(0,0,0,0.18)] transition-colors"
+              className="flex-1 min-w-55 bg-white/6 border border-white/9 rounded-[9px] px-3.5 py-2 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-white/20 transition-colors"
             />
 
             <select
               value={newPriority}
               onChange={(e) => setNewPriority(e.target.value as Task['priority'])}
-              className="bg-white/80 border border-[rgba(0,0,0,0.08)] rounded-[9px] px-3 py-2 text-[13px] text-ink-3 focus:outline-none focus:border-[rgba(0,0,0,0.18)] transition-colors appearance-none cursor-pointer"
+              className="bg-white/6 border border-white/9 rounded-[9px] px-3 py-2 text-[13px] text-white/65 focus:outline-none focus:border-white/20 transition-colors appearance-none cursor-pointer"
             >
-              <option value="alta">Alta</option>
-              <option value="media">Media</option>
-              <option value="baja">Baja</option>
+              <option value="alta" className="bg-ink">Alta</option>
+              <option value="media" className="bg-ink">Media</option>
+              <option value="baja" className="bg-ink">Baja</option>
             </select>
 
             <div className="flex items-center gap-1">
@@ -364,16 +351,16 @@ const TasksPage = () => {
                   }}
                   onBlur={confirmNewCategory}
                   placeholder="nombre categoría"
-                  className="w-36 bg-white border border-[rgba(0,0,0,0.12)] rounded-[9px] px-3 py-2 text-[13px] text-ink placeholder:text-[rgba(0,0,0,0.25)] focus:outline-none transition-colors"
+                  className="w-36 bg-white/6 border border-white/20 rounded-[9px] px-3 py-2 text-[13px] text-white placeholder:text-white/25 focus:outline-none transition-colors"
                 />
               ) : (
                 <select
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
-                  className="bg-white/80 border border-[rgba(0,0,0,0.08)] rounded-[9px] px-3 py-2 text-[13px] text-ink-3 focus:outline-none focus:border-[rgba(0,0,0,0.18)] transition-colors appearance-none cursor-pointer"
+                  className="bg-white/6 border border-white/9 rounded-[9px] px-3 py-2 text-[13px] text-white/65 focus:outline-none focus:border-white/20 transition-colors appearance-none cursor-pointer"
                 >
                   {categories.map((c) => (
-                    <option key={c} value={c} className="capitalize">
+                    <option key={c} value={c} className="bg-ink capitalize">
                       {c}
                     </option>
                   ))}
@@ -391,7 +378,7 @@ const TasksPage = () => {
                 <button
                   type="button"
                   onClick={() => setAddingCategory((v) => !v)}
-                  className="w-8 h-8 flex items-center justify-center rounded-[9px] bg-white/80 border border-[rgba(0,0,0,0.08)] text-ink-3 hover:text-ink hover:bg-white transition-all cursor-pointer text-[16px] font-light leading-none"
+                  className="w-8 h-8 flex items-center justify-center rounded-[9px] bg-white/6 border border-white/9 text-white/40 hover:text-white/70 hover:bg-white/9 transition-all cursor-pointer text-[16px] font-light leading-none"
                 >
                   +
                 </button>
@@ -402,13 +389,13 @@ const TasksPage = () => {
               type="date"
               value={newDueDate}
               onChange={(e) => setNewDueDate(e.target.value)}
-              className="bg-white/80 border border-[rgba(0,0,0,0.08)] rounded-[9px] px-3 py-2 text-[13px] text-ink-3 focus:outline-none focus:border-[rgba(0,0,0,0.18)] transition-colors"
+              className="bg-white/6 border border-white/9 rounded-[9px] px-3 py-2 text-[13px] text-white/65 focus:outline-none focus:border-white/20 transition-colors sheme:dark"
             />
 
             <button
-              onClick={addTask}
+              onClick={handleAddTask}
               disabled={!newTitle.trim()}
-              className="px-4 py-2 rounded-[9px] bg-ink text-white text-[13px] font-medium disabled:opacity-30 hover:opacity-85 transition-opacity cursor-pointer disabled:cursor-default"
+              className="px-4 py-2 rounded-[9px] bg-gold text-ink text-[13px] font-medium disabled:opacity-30 hover:opacity-90 transition-opacity cursor-pointer disabled:cursor-default"
             >
               Agregar
             </button>
@@ -493,7 +480,7 @@ const TasksPage = () => {
 
           <div className="flex flex-col gap-1.5">
             {filtered.length === 0 && (
-              <div className="text-center py-12 text-ink-3 text-[13px]">Sin tareas</div>
+              <div className="text-center py-12 text-white/25 text-[13px]">Sin tareas</div>
             )}
             {filtered.map((task, i) => {
               return (
@@ -519,7 +506,7 @@ const TasksPage = () => {
                     )}
                   </div>
                   <button
-                    onClick={() => toggleTask(task.id)}
+                    onClick={() => handleToggleTask(task.id)}
                     className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all duration-150 border-[1.5px] cursor-pointer ${
                       task.done
                         ? 'bg-green-500 border-green-500'
@@ -538,18 +525,18 @@ const TasksPage = () => {
           <div className="flex items-center justify-between mb-4">
             <p className="text-base font-bold text-white tracking-[-0.3px]">Alertas</p>
             {criticalAlerts > 0 && (
-              <span className="text-[11px] font-semibold text-red-500 bg-red-50 border border-red-200/80 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-semibold text-[#E05050] bg-white/6 px-2 py-0.5 rounded-full">
                 {criticalAlerts} críticas
               </span>
             )}
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             {alerts.map((alert) => {
               const Icon = ALERT_ICON[alert.type]
               return (
                 <div
                   key={alert.id}
-                  className={`flex gap-3 p-3.5 rounded-[13px] border ${ALERT_CARD[alert.type]}`}
+                  className="flex items-start gap-2.5 px-3 py-2.5 rounded-[14px] bg-white/5"
                 >
                   <Icon
                     size={14}
@@ -558,13 +545,13 @@ const TasksPage = () => {
                     className="mt-0.5 shrink-0"
                   />
                   <div className="min-w-0">
-                    <p className={`text-[12.5px] font-medium leading-[1.3] mb-0.5 ${ALERT_TITLE[alert.type]}`}>
+                    <p className="text-[12.5px] font-medium text-white leading-[1.3] mb-0.5">
                       {alert.title}
                     </p>
-                    <p className={`text-[11px] leading-[1.4] mb-1.5 ${ALERT_DESC[alert.type]}`}>
+                    <p className="text-[11px] text-white/35 leading-[1.4] mb-1">
                       {alert.description}
                     </p>
-                    <p className="text-[10.5px] text-ink-3">{formatDate(alert.date)}</p>
+                    <p className="text-[10.5px] text-white/25">{formatDate(alert.date)}</p>
                   </div>
                 </div>
               )
