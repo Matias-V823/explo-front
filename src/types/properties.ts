@@ -80,7 +80,11 @@ export interface ListingProperty {
   ownerId: number
   ownerName: string
   contact: string
-  location: string
+  address: string
+  country: { id: number; name: string; code: string }
+  region: { id: number; name: string }
+  city: { id: number; name: string }
+  commune: { id: number; name: string } | null
   tenantId?: number
   program: PropertyProgram
   utilities: PropertyUtility[]

@@ -19,7 +19,11 @@ export interface FormState {
   name: string
   category: PropertyCategory
   availability: Availability
-  location: string
+  address: string
+  countryId: string
+  regionId: string
+  cityId: string
+  communeId: string
   valueUF: string
   contact: string
   description: string

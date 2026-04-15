@@ -134,7 +134,7 @@ export default function PropertyCard({ property, onView, onEdit, onDelete }: Pro
         <div className="flex flex-wrap gap-x-5 gap-y-1.5 pt-1 border-t border-zinc-100">
           <span className="flex items-center gap-1.5 text-[12px] text-ink-3">
             <MapPin size={12} strokeWidth={1.8} className="shrink-0" />
-            {property.location}
+            {[property.commune?.name, property.city.name].filter(Boolean).join(', ')}
           </span>
           <span className="flex items-center gap-1.5 text-[12px] text-ink-3">
             <User size={12} strokeWidth={1.8} className="shrink-0" />

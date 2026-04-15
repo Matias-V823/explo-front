@@ -32,7 +32,9 @@ export default function PropertiesPage() {
       const matchesSearch =
         !q ||
         p.name.toLowerCase().includes(q) ||
-        p.location.toLowerCase().includes(q) ||
+        p.address.toLowerCase().includes(q) ||
+        p.city.name.toLowerCase().includes(q) ||
+        (p.commune?.name ?? '').toLowerCase().includes(q) ||
         p.ownerName.toLowerCase().includes(q) ||
         p.description.toLowerCase().includes(q)
       const matchesAvailability = availability === 'todas' || p.availability === availability

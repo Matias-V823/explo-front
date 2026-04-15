@@ -19,7 +19,11 @@ type RawProperty = {
   description: string
   category: string
   availability: string
-  location: string
+  address: string
+  country: { id: number; name: string; code: string }
+  region: { id: number; name: string }
+  city: { id: number; name: string }
+  commune: { id: number; name: string } | null
   contact: string
   valueUF: number
   images: string[]
@@ -51,7 +55,11 @@ function mapProperty(raw: RawProperty): ListingProperty {
     description: raw.description ?? '',
     category: raw.category as ListingProperty['category'],
     availability: raw.availability as ListingProperty['availability'],
-    location: raw.location,
+    address: raw.address,
+    country: raw.country,
+    region: raw.region,
+    city: raw.city,
+    commune: raw.commune,
     contact: raw.contact ?? '',
     valueUF: Number(raw.valueUF) || 0,
     images: raw.images ?? [],
@@ -122,7 +130,11 @@ export interface CreatePropertyPayload {
   description?: string
   category: string
   availability: string
-  location: string
+  address: string
+  countryId: number
+  regionId: number
+  cityId: number
+  communeId?: number
   contact?: string
   valueUF?: number
   images?: string[]
@@ -156,6 +168,30 @@ export interface CreatePropertyPayload {
     date: string
     type: string
   }[]
+}
+
+export async function fetchCountries(): Promise<{ id: number; name: string; code: string }[]> {
+  const res = await apiFetch('/properties/countries')
+  if (!res.ok) throw new Error('Error al cargar los países')
+  return res.json()
+}
+
+export async function fetchRegions(countryId: number): Promise<{ id: number; name: string }[]> {
+  const res = await apiFetch(`/properties/regions?countryId=${countryId}`)
+  if (!res.ok) throw new Error('Error al cargar las regiones')
+  return res.json()
+}
+
+export async function fetchCities(regionId: number): Promise<{ id: number; name: string }[]> {
+  const res = await apiFetch(`/properties/cities?regionId=${regionId}`)
+  if (!res.ok) throw new Error('Error al cargar las ciudades')
+  return res.json()
+}
+
+export async function fetchCommunes(cityId: number): Promise<{ id: number; name: string }[]> {
+  const res = await apiFetch(`/properties/communes?cityId=${cityId}`)
+  if (!res.ok) throw new Error('Error al cargar las comunas')
+  return res.json()
 }
 
 export async function fetchUtilityTypes(): Promise<{ id: number; name: string }[]> {

@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, type SubmitEvent } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, ImagePlus, X, Loader2, Check, UserPlus, Paperclip, FileText } from 'lucide-react'
 import { fetchPersons } from '../api/persons'
 import { uploadImage, uploadDocument } from '../api/storage'
-import { createProperty, fetchProperty, fetchDocumentTypes, fetchUtilityTypes, fetchServiceProviders } from '../api/properties'
+import { createProperty, fetchProperty, fetchDocumentTypes, fetchUtilityTypes, fetchServiceProviders, fetchCountries, fetchRegions, fetchCities, fetchCommunes } from '../api/properties'
 import type { Availability, PropertyCategory, UtilityStatus } from '../types/properties'
 import type { FormState, FormDocument, FormUtility } from '../types/propertyForm'
 import type { PersonOption } from '../types/persons'
@@ -17,7 +17,8 @@ import NewPersonModal from '../components/properties/NewPersonModal'
 
 const EMPTY_FORM: FormState = {
   name: '', category: 'departamento', availability: 'arrendar',
-  location: '', valueUF: '', contact: '', description: '',
+  address: '', countryId: '', regionId: '', cityId: '', communeId: '',
+  valueUF: '', contact: '', description: '',
   bedrooms: '', bathrooms: '', parkings: '', construction: '', terrain: '',
   ownerId: '', tenantId: '',
   utilities: [],
@@ -26,12 +27,15 @@ const EMPTY_FORM: FormState = {
 }
 
 
+type FormErrors = Record<string, string>
+
 export default function PropertyFormPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const isEditing = id !== undefined
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
+  const [errors, setErrors] = useState<FormErrors>({})
   const [formLoading, setFormLoading] = useState(isEditing)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingDocIndex, setUploadingDocIndex] = useState<number | null>(null)
@@ -43,6 +47,10 @@ export default function PropertyFormPage() {
   const [documentTypes, setDocumentTypes] = useState<{ id: number; name: string }[]>([])
   const [utilityTypes, setUtilityTypes] = useState<{ id: number; name: string }[]>([])
   const [serviceProviders, setServiceProviders] = useState<{ id: number; name: string; utilityType: { id: number } }[]>([])
+  const [countries, setCountries] = useState<{ id: number; name: string; code: string }[]>([])
+  const [regions, setRegions] = useState<{ id: number; name: string }[]>([])
+  const [cities, setCities] = useState<{ id: number; name: string }[]>([])
+  const [communes, setCommunes] = useState<{ id: number; name: string }[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const docFileInputRef = useRef<HTMLInputElement>(null)
   const uploadingDocIndexRef = useRef<number | null>(null)
@@ -54,6 +62,7 @@ export default function PropertyFormPage() {
     fetchDocumentTypes().then(setDocumentTypes).catch(() => {})
     fetchUtilityTypes().then(setUtilityTypes).catch(() => {})
     fetchServiceProviders().then(setServiceProviders).catch(() => {})
+    fetchCountries().then(setCountries).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -64,7 +73,11 @@ export default function PropertyFormPage() {
           name: p.name,
           category: p.category,
           availability: p.availability,
-          location: p.location,
+          address: p.address,
+          countryId: String(p.country.id),
+          regionId: String(p.region.id),
+          cityId: String(p.city.id),
+          communeId: p.commune ? String(p.commune.id) : '',
           valueUF: String(p.valueUF),
           contact: p.contact ?? '',
           description: p.description ?? '',
@@ -90,6 +103,9 @@ export default function PropertyFormPage() {
           images: [...p.images],
           documents: p.documents.map(d => ({ name: d.name, documentTypeId: d.documentType.id, date: d.date, url: '' })),
         })
+        fetchRegions(p.country.id).then(setRegions).catch(() => {})
+        fetchCities(p.region.id).then(setCities).catch(() => {})
+        fetchCommunes(p.city.id).then(setCommunes).catch(() => {})
       })
       .catch(() => navigate('/propiedades'))
       .finally(() => setFormLoading(false))
@@ -97,6 +113,7 @@ export default function PropertyFormPage() {
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
+    if (errors[key as string]) setErrors(prev => { const n = { ...prev }; delete n[key as string]; return n })
   }
 
   function setDate(i: number, field: keyof FormState['importantDates'][0], value: string) {
@@ -105,6 +122,30 @@ export default function PropertyFormPage() {
       dates[i] = { ...dates[i], [field]: value }
       return { ...prev, importantDates: dates }
     })
+  }
+
+  function handleCountryChange(countryId: string) {
+    setForm(prev => ({ ...prev, countryId, regionId: '', cityId: '', communeId: '' }))
+    setErrors(prev => { const n = { ...prev }; delete n.countryId; delete n.regionId; delete n.cityId; return n })
+    setRegions([])
+    setCities([])
+    setCommunes([])
+    if (countryId) fetchRegions(Number(countryId)).then(setRegions).catch(() => {})
+  }
+
+  function handleRegionChange(regionId: string) {
+    setForm(prev => ({ ...prev, regionId, cityId: '', communeId: '' }))
+    setErrors(prev => { const n = { ...prev }; delete n.regionId; delete n.cityId; return n })
+    setCities([])
+    setCommunes([])
+    if (regionId) fetchCities(Number(regionId)).then(setCities).catch(() => {})
+  }
+
+  function handleCityChange(cityId: string) {
+    setForm(prev => ({ ...prev, cityId, communeId: '' }))
+    setErrors(prev => { const n = { ...prev }; delete n.cityId; return n })
+    setCommunes([])
+    if (cityId) fetchCommunes(Number(cityId)).then(setCommunes).catch(() => {})
   }
 
   function setUtility(i: number, field: keyof FormUtility, value: string) {
@@ -162,7 +203,7 @@ export default function PropertyFormPage() {
   }
 
   const done = {
-    identidad:       !!(form.name && form.location && form.valueUF),
+    identidad:       !!(form.name && form.address && form.cityId && form.valueUF),
     descripcion:     !!(form.description),
     caracteristicas: !!(form.bedrooms || form.bathrooms || form.construction),
     personas:        !!(form.ownerId),
@@ -171,22 +212,64 @@ export default function PropertyFormPage() {
     documentacion:   form.images.length > 0,
   }
 
+  function errCls(field: string, base = inputCls) {
+    return errors[field]
+      ? base.replace('border-[rgba(0,0,0,0.08)]', 'border-red-300').replace('bg-zinc-50', 'bg-red-50/30')
+      : base
+  }
+
+  function validate(): boolean {
+    const e: FormErrors = {}
+    if (!form.name.trim())                         e.name = 'El nombre es requerido'
+    else if (form.name.trim().length < 3)          e.name = 'Mínimo 3 caracteres'
+    if (!form.address.trim())                      e.address = 'La dirección es requerida'
+    if (!form.countryId)                           e.countryId = 'Selecciona un país'
+    if (!form.regionId)                            e.regionId = 'Selecciona una región'
+    if (!form.cityId)                              e.cityId = 'Selecciona una ciudad'
+    if (!form.valueUF || Number(form.valueUF) <= 0) e.valueUF = 'Ingresa un valor mayor a 0'
+    if (!form.ownerId)                             e.ownerId = 'El propietario es requerido'
+    if (form.hasFinancials) {
+      if (!form.monthlyRentCLP || Number(form.monthlyRentCLP) <= 0)
+        e.monthlyRentCLP = 'Ingresa el monto de arriendo'
+      const pct = Number(form.administrationPct)
+      if (isNaN(pct) || pct < 0 || pct > 100)
+        e.administrationPct = 'Debe ser entre 0 y 100'
+      const day = Number(form.paymentDueDay)
+      if (!form.paymentDueDay || day < 1 || day > 31)
+        e.paymentDueDay = 'Día inválido (1–31)'
+    }
+    setErrors(e)
+    if (Object.keys(e).length > 0) {
+      const firstSection = ['name', 'address', 'countryId', 'regionId', 'cityId', 'valueUF'].some(f => e[f])
+        ? 'identidad'
+        : e.ownerId ? 'personas'
+        : 'financiero'
+      document.getElementById(firstSection)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    return Object.keys(e).length === 0
+  }
+
   function scrollTo(sectionId: string) {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     setActiveSection(sectionId)
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     if (uploadingImage || uploadingDocIndex !== null) return
+    if (!validate()) return
     setSubmitting(true)
     try {
       const { id } = await createProperty({
-        name: form.name,
-        description: form.description || undefined,
+        name: form.name.trim(),
+        description: form.description.trim() || undefined,
         category: form.category,
         availability: form.availability,
-        location: form.location,
+        address: form.address.trim(),
+        countryId: Number(form.countryId),
+        regionId: Number(form.regionId),
+        cityId: Number(form.cityId),
+        communeId: form.communeId ? Number(form.communeId) : undefined,
         contact: form.contact || undefined,
         valueUF: form.valueUF ? Number(form.valueUF) : undefined,
         images: form.images,
@@ -209,8 +292,8 @@ export default function PropertyFormPage() {
           administrationPct: Number(form.administrationPct),
           paymentDueDay: Number(form.paymentDueDay),
         } : undefined,
-        documents: form.documents.filter(d => d.name && d.date && d.documentTypeId).map(d => ({
-          name: d.name,
+        documents: form.documents.filter(d => d.name.trim() && d.date && d.documentTypeId).map(d => ({
+          name: d.name.trim(),
           documentTypeId: d.documentTypeId,
           date: d.date,
           fileUrl: d.url || undefined,
@@ -303,10 +386,11 @@ export default function PropertyFormPage() {
         <SectionCard id="identidad" number={1} title="Identidad">
           <div className="flex flex-col gap-4">
             <div>
-              <label className={labelCls}>Nombre de la propiedad</label>
+              <label className={labelCls}>Nombre de la propiedad <span className="text-red-400">*</span></label>
               <input value={form.name} onChange={e => set('name', e.target.value)}
                 placeholder="Ej: Departamento Providencia Centro"
-                required className={inputCls} />
+                className={errCls('name')} />
+              {errors.name && <p className="text-[11px] text-red-500 mt-1">{errors.name}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -330,18 +414,55 @@ export default function PropertyFormPage() {
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>Dirección <span className="text-red-400">*</span></label>
+              <input value={form.address} onChange={e => set('address', e.target.value)}
+                placeholder="Ej: Av. Providencia 1234" className={errCls('address')} />
+              {errors.address && <p className="text-[11px] text-red-500 mt-1">{errors.address}</p>}
+            </div>
+            <div className="grid grid-cols-4 gap-3">
               <div>
-                <label className={labelCls}>Ubicación</label>
-                <input value={form.location} onChange={e => set('location', e.target.value)}
-                  placeholder="Ej: Providencia, RM" required className={inputCls} />
+                <label className={labelCls}>País <span className="text-red-400">*</span></label>
+                <select value={form.countryId} onChange={e => handleCountryChange(e.target.value)}
+                  className={errCls('countryId', selectCls)}>
+                  <option value="">Seleccionar</option>
+                  {countries.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+                {errors.countryId && <p className="text-[11px] text-red-500 mt-1">{errors.countryId}</p>}
               </div>
               <div>
-                <label className={labelCls}>Valor (UF)</label>
-                <input type="number" value={form.valueUF}
-                  onChange={e => set('valueUF', e.target.value)}
-                  placeholder="7200" min={0} required className={inputCls} />
+                <label className={labelCls}>Región <span className="text-red-400">*</span></label>
+                <select value={form.regionId} onChange={e => handleRegionChange(e.target.value)}
+                  disabled={!form.countryId} className={errCls('regionId', selectCls)}>
+                  <option value="">Seleccionar</option>
+                  {regions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                </select>
+                {errors.regionId && <p className="text-[11px] text-red-500 mt-1">{errors.regionId}</p>}
               </div>
+              <div>
+                <label className={labelCls}>Ciudad <span className="text-red-400">*</span></label>
+                <select value={form.cityId} onChange={e => handleCityChange(e.target.value)}
+                  disabled={!form.regionId} className={errCls('cityId', selectCls)}>
+                  <option value="">Seleccionar</option>
+                  {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+                {errors.cityId && <p className="text-[11px] text-red-500 mt-1">{errors.cityId}</p>}
+              </div>
+              <div>
+                <label className={labelCls}>Comuna <span className="text-zinc-300 font-normal normal-case">opcional</span></label>
+                <select value={form.communeId} onChange={e => set('communeId', e.target.value)}
+                  disabled={!form.cityId} className={selectCls}>
+                  <option value="">Sin comuna</option>
+                  {communes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className={labelCls}>Valor (UF) <span className="text-red-400">*</span></label>
+              <input type="number" value={form.valueUF}
+                onChange={e => set('valueUF', e.target.value)}
+                placeholder="7200" min={0} className={errCls('valueUF')} />
+              {errors.valueUF && <p className="text-[11px] text-red-500 mt-1">{errors.valueUF}</p>}
             </div>
             <div>
               <label className={labelCls}>Contacto</label>
@@ -387,7 +508,7 @@ export default function PropertyFormPage() {
               <div>
                 <label className={labelCls}>Propietario <span className="text-red-400">*</span></label>
                 <select value={form.ownerId} onChange={e => set('ownerId', e.target.value)}
-                  required disabled={personsLoading} className={selectCls}>
+                  disabled={personsLoading} className={errCls('ownerId', selectCls)}>
                   <option value="">{personsLoading ? 'Cargando…' : 'Seleccionar'}</option>
                   {persons.filter(p => p.roleId === 4).map(p => (
                     <option key={p.id} value={p.id}>
@@ -395,6 +516,7 @@ export default function PropertyFormPage() {
                     </option>
                   ))}
                 </select>
+                {errors.ownerId && <p className="text-[11px] text-red-500 mt-1">{errors.ownerId}</p>}
               </div>
               <div>
                 <label className={labelCls}>Inquilino <span className="text-zinc-300 font-normal normal-case">opcional</span></label>
@@ -497,22 +619,25 @@ export default function PropertyFormPage() {
           {form.hasFinancials && (
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-zinc-100">
               <div>
-                <label className={labelCls}>Arriendo mensual (CLP)</label>
+                <label className={labelCls}>Arriendo mensual (CLP) <span className="text-red-400">*</span></label>
                 <input type="number" value={form.monthlyRentCLP}
                   onChange={e => set('monthlyRentCLP', e.target.value)}
-                  placeholder="650000" min={0} className={inputCls} />
+                  placeholder="650000" min={0} className={errCls('monthlyRentCLP')} />
+                {errors.monthlyRentCLP && <p className="text-[11px] text-red-500 mt-1">{errors.monthlyRentCLP}</p>}
               </div>
               <div>
                 <label className={labelCls}>Comisión admin. (%)</label>
                 <input type="number" value={form.administrationPct}
                   onChange={e => set('administrationPct', e.target.value)}
-                  placeholder="10" min={0} max={100} className={inputCls} />
+                  placeholder="10" min={0} max={100} className={errCls('administrationPct')} />
+                {errors.administrationPct && <p className="text-[11px] text-red-500 mt-1">{errors.administrationPct}</p>}
               </div>
               <div>
                 <label className={labelCls}>Día de vencimiento</label>
                 <input type="number" value={form.paymentDueDay}
                   onChange={e => set('paymentDueDay', e.target.value)}
-                  placeholder="5" min={1} max={31} className={inputCls} />
+                  placeholder="5" min={1} max={31} className={errCls('paymentDueDay')} />
+                {errors.paymentDueDay && <p className="text-[11px] text-red-500 mt-1">{errors.paymentDueDay}</p>}
               </div>
             </div>
           )}

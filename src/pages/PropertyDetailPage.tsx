@@ -91,14 +91,14 @@ export default function PropertyDetailPage() {
         <div className="flex items-start justify-between mb-4 px-1">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.7px] text-zinc-400 mb-1.5">
-              {property.category} · {property.location}
+              {property.category} · {[property.commune?.name, property.city.name].filter(Boolean).join(', ')}
             </p>
             <h1 className="text-[30px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1]">
               {property.name}
             </h1>
             <div className="flex items-center gap-1.5 text-[13px] text-zinc-400 mt-1.5">
               <MapPin size={13} strokeWidth={1.8} />
-              {property.location}
+              {[property.address, property.commune?.name, property.city.name, property.country.name].filter(Boolean).join(', ')}
             </div>
           </div>
           <div className='flex gap-2'>
