@@ -3,16 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, ImagePlus, X, Loader2, Check, UserPlus, Paperclip, FileText } from 'lucide-react'
 import { fetchPersons } from '../api/persons'
 import { uploadImage, uploadDocument } from '../api/storage'
-import { createProperty, fetchProperty, fetchDocumentTypes } from '../api/properties'
-import type { Availability, PropertyCategory } from '../types/properties'
-import type { FormState, FormDocument } from '../types/propertyForm'
+import { createProperty, fetchProperty, fetchDocumentTypes, fetchUtilityTypes, fetchServiceProviders } from '../api/properties'
+import type { Availability, PropertyCategory, UtilityStatus } from '../types/properties'
+import type { FormState, FormDocument, FormUtility } from '../types/propertyForm'
 import type { PersonOption } from '../types/persons'
 import {
-  PROPERTY_CATEGORIES, DATE_TYPES, NAV_SECTIONS,
+  PROPERTY_CATEGORIES, DATE_TYPES, NAV_SECTIONS, UTILITY_STATUS_OPTIONS,
   inputCls, selectCls, labelCls,
 } from '../constants/propertyForm'
 import SectionCard from '../components/properties/SectionCard'
-import UtilityRow from '../components/properties/UtilityRow'
 import NewPersonModal from '../components/properties/NewPersonModal'
 
 
@@ -21,9 +20,7 @@ const EMPTY_FORM: FormState = {
   location: '', valueUF: '', contact: '', description: '',
   bedrooms: '', bathrooms: '', parkings: '', construction: '', terrain: '',
   ownerId: '', tenantId: '',
-  electricity: 'al-dia', electricityBill: '',
-  water: 'al-dia', waterBill: '',
-  gas: 'al-dia', gasBill: '',
+  utilities: [],
   hasFinancials: false, monthlyRentCLP: '', administrationPct: '10', paymentDueDay: '5',
   importantDates: [], images: [], documents: [],
 }
@@ -44,6 +41,8 @@ export default function PropertyFormPage() {
   const [persons, setPersons] = useState<PersonOption[]>([])
   const [personsLoading, setPersonsLoading] = useState(true)
   const [documentTypes, setDocumentTypes] = useState<{ id: number; name: string }[]>([])
+  const [utilityTypes, setUtilityTypes] = useState<{ id: number; name: string }[]>([])
+  const [serviceProviders, setServiceProviders] = useState<{ id: number; name: string; utilityType: { id: number } }[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const docFileInputRef = useRef<HTMLInputElement>(null)
   const uploadingDocIndexRef = useRef<number | null>(null)
@@ -53,6 +52,8 @@ export default function PropertyFormPage() {
       .then(setPersons)
       .finally(() => setPersonsLoading(false))
     fetchDocumentTypes().then(setDocumentTypes).catch(() => {})
+    fetchUtilityTypes().then(setUtilityTypes).catch(() => {})
+    fetchServiceProviders().then(setServiceProviders).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -74,12 +75,13 @@ export default function PropertyFormPage() {
           terrain: p.program.terrain != null ? String(p.program.terrain) : '',
           ownerId: String(p.ownerId),
           tenantId: p.tenantId ? String(p.tenantId) : '',
-          electricity: p.utilities.electricity,
-          electricityBill: p.utilities.electricityBill ?? '',
-          water: p.utilities.water,
-          waterBill: p.utilities.waterBill ?? '',
-          gas: p.utilities.gas,
-          gasBill: p.utilities.gasBill ?? '',
+          utilities: p.utilities.map(u => ({
+            utilityTypeId: u.utilityType.id,
+            serviceProviderId: u.serviceProvider?.id ?? 0,
+            status: u.status,
+            customerNumber: u.customerNumber ?? '',
+            billDueDay: u.billDueDay != null ? String(u.billDueDay) : '',
+          })),
           hasFinancials: !!p.financials,
           monthlyRentCLP: p.financials ? String(p.financials.monthlyRentCLP) : '',
           administrationPct: p.financials ? String(p.financials.administrationPct) : '10',
@@ -102,6 +104,15 @@ export default function PropertyFormPage() {
       const dates = [...prev.importantDates]
       dates[i] = { ...dates[i], [field]: value }
       return { ...prev, importantDates: dates }
+    })
+  }
+
+  function setUtility(i: number, field: keyof FormUtility, value: string) {
+    setForm(prev => {
+      const utils = [...prev.utilities]
+      const parsed = (field === 'utilityTypeId' || field === 'serviceProviderId') ? Number(value) : value
+      utils[i] = { ...utils[i], [field]: parsed }
+      return { ...prev, utilities: utils }
     })
   }
 
@@ -155,7 +166,7 @@ export default function PropertyFormPage() {
     descripcion:     !!(form.description),
     caracteristicas: !!(form.bedrooms || form.bathrooms || form.construction),
     personas:        !!(form.ownerId),
-    servicios:       true,
+    servicios:       form.utilities.length > 0,
     financiero:      !form.hasFinancials || !!(form.monthlyRentCLP),
     documentacion:   form.images.length > 0,
   }
@@ -186,14 +197,13 @@ export default function PropertyFormPage() {
         constructionM2: form.construction ? Number(form.construction) : undefined,
         ownerId: Number(form.ownerId),
         tenantId: form.tenantId ? Number(form.tenantId) : undefined,
-        utilities: {
-          electricity: form.electricity,
-          electricityBill: form.electricityBill || undefined,
-          water: form.water,
-          waterBill: form.waterBill || undefined,
-          gas: form.gas,
-          gasBill: form.gasBill || undefined,
-        },
+        utilities: form.utilities.filter(u => u.utilityTypeId).map(u => ({
+          utilityTypeId: u.utilityTypeId,
+          serviceProviderId: u.serviceProviderId || undefined,
+          status: u.status,
+          customerNumber: u.customerNumber || undefined,
+          billDueDay: u.billDueDay ? Number(u.billDueDay) : undefined,
+        })),
         financials: form.hasFinancials && form.monthlyRentCLP ? {
           monthlyRentCLP: Number(form.monthlyRentCLP),
           administrationPct: Number(form.administrationPct),
@@ -408,15 +418,66 @@ export default function PropertyFormPage() {
         </SectionCard>
 
         <SectionCard id="servicios" number={5} title="Servicios básicos">
-          <div className="flex flex-col gap-4">
-            <UtilityRow label="Electricidad" status={form.electricity} bill={form.electricityBill}
-              onStatus={v => set('electricity', v)} onBill={v => set('electricityBill', v)} />
-            <div className="border-t border-zinc-100" />
-            <UtilityRow label="Agua" status={form.water} bill={form.waterBill}
-              onStatus={v => set('water', v)} onBill={v => set('waterBill', v)} />
-            <div className="border-t border-zinc-100" />
-            <UtilityRow label="Gas" status={form.gas} bill={form.gasBill}
-              onStatus={v => set('gas', v)} onBill={v => set('gasBill', v)} />
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[12px] text-zinc-400">Registra los servicios asociados a la propiedad</p>
+            <button type="button" onClick={() => setForm(p => ({
+                ...p,
+                utilities: [...p.utilities, {
+                  utilityTypeId: utilityTypes[0]?.id ?? 0,
+                  serviceProviderId: 0,
+                  status: 'no-aplica',
+                  customerNumber: '',
+                  billDueDay: '',
+                }],
+              }))}
+              className="flex items-center gap-1 text-[11.5px] font-medium text-zinc-400 hover:text-ink transition-colors">
+              <Plus size={12} /> Agregar
+            </button>
+          </div>
+          {form.utilities.length === 0 && (
+            <p className="text-[12.5px] text-zinc-400 text-center py-4">Sin servicios registrados</p>
+          )}
+          <div className="flex flex-col gap-2">
+            {form.utilities.map((u, i) => {
+              const providersForType = serviceProviders.filter(p => p.utilityType.id === u.utilityTypeId)
+              return (
+                <div key={i} className="grid grid-cols-[150px_160px_120px_1fr_72px_32px] gap-2 items-center">
+                  <select value={u.utilityTypeId}
+                    onChange={e => {
+                      setUtility(i, 'utilityTypeId', e.target.value)
+                      setUtility(i, 'serviceProviderId', '0')
+                    }}
+                    className="h-9 px-2.5 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12px] text-ink focus:outline-none appearance-none">
+                    {utilityTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                  </select>
+                  <select value={u.serviceProviderId}
+                    onChange={e => setUtility(i, 'serviceProviderId', e.target.value)}
+                    className="h-9 px-2.5 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12px] text-ink focus:outline-none appearance-none">
+                    <option value={0}>Sin proveedor</option>
+                    {providersForType.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                  <select value={u.status}
+                    onChange={e => setUtility(i, 'status', e.target.value as UtilityStatus)}
+                    className="h-9 px-2.5 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12px] text-ink focus:outline-none appearance-none">
+                    {UTILITY_STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                  </select>
+                  <input value={u.customerNumber}
+                    onChange={e => setUtility(i, 'customerNumber', e.target.value)}
+                    placeholder="N° cliente / cuenta"
+                    className="h-9 px-3 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12.5px] text-ink placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition-colors" />
+                  <input type="number" value={u.billDueDay}
+                    onChange={e => setUtility(i, 'billDueDay', e.target.value)}
+                    placeholder="Día cobro"
+                    min={1} max={31}
+                    className="h-9 px-3 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12.5px] text-ink placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition-colors" />
+                  <button type="button"
+                    onClick={() => setForm(p => ({ ...p, utilities: p.utilities.filter((_, j) => j !== i) }))}
+                    className="w-8 h-9 flex items-center justify-center text-zinc-300 hover:text-red-400 transition-colors rounded-lg hover:bg-red-50">
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              )
+            })}
           </div>
         </SectionCard>
 

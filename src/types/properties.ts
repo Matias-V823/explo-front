@@ -28,13 +28,14 @@ export interface PropertyProgram {
   construction?: number // m²
 }
 
-export interface PropertyUtilities {
-  electricity: UtilityStatus
-  electricityBill?: string
-  water: UtilityStatus
-  waterBill?: string
-  gas: UtilityStatus
-  gasBill?: string
+export interface PropertyUtility {
+  id: number
+  utilityType: { id: number; name: string }
+  serviceProvider: { id: number; name: string; billQueryUrl: string | null } | null
+  status: UtilityStatus
+  customerNumber: string | null
+  billDueDay: number | null
+  lastBillUrl: string | null
 }
 
 export type TransferStatus = 'pagado' | 'pendiente' | 'parcial' | 'atrasado'
@@ -82,7 +83,7 @@ export interface ListingProperty {
   location: string
   tenantId?: number
   program: PropertyProgram
-  utilities: PropertyUtilities
+  utilities: PropertyUtility[]
   documents: PropertyDocument[]
   importantDates: ImportantDate[]
   financials?: PropertyFinancials

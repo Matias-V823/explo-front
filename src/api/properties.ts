@@ -1,5 +1,5 @@
 import { apiFetch } from './client'
-import type { ListingProperty, UtilityStatus } from '../types/properties'
+import type { ListingProperty, PropertyUtility } from '../types/properties'
 
 export interface PropertyPerson {
   id: number
@@ -30,14 +30,7 @@ type RawProperty = {
   constructionM2: number | null
   owner: { id: number; name: string; paternalLastName: string; email: string; phone: string }
   tenant: { id: number; name: string; paternalLastName: string; email: string; phone: string } | null
-  utilities: {
-    electricity: UtilityStatus
-    electricityBill?: string
-    water: UtilityStatus
-    waterBill?: string
-    gas: UtilityStatus
-    gasBill?: string
-  } | null
+  utilities: PropertyUtility[]
   financials: {
     monthlyRentCLP: number
     administrationPct: number
@@ -72,11 +65,7 @@ function mapProperty(raw: RawProperty): ListingProperty {
       terrain: raw.terrainM2 ?? undefined,
       construction: raw.constructionM2 ?? undefined,
     },
-    utilities: raw.utilities ?? {
-      electricity: 'no-aplica',
-      water: 'no-aplica',
-      gas: 'no-aplica',
-    },
+    utilities: raw.utilities ?? [],
     financials: raw.financials ? {
       monthlyRentCLP: raw.financials.monthlyRentCLP,
       administrationPct: raw.financials.administrationPct,
@@ -144,14 +133,13 @@ export interface CreatePropertyPayload {
   constructionM2?: number
   ownerId: number
   tenantId?: number
-  utilities: {
-    electricity: UtilityStatus
-    electricityBill?: string
-    water: UtilityStatus
-    waterBill?: string
-    gas: UtilityStatus
-    gasBill?: string
-  }
+  utilities?: {
+    utilityTypeId: number
+    serviceProviderId?: number
+    status: string
+    customerNumber?: string
+    billDueDay?: number
+  }[]
   financials?: {
     monthlyRentCLP: number
     administrationPct: number
@@ -168,6 +156,21 @@ export interface CreatePropertyPayload {
     date: string
     type: string
   }[]
+}
+
+export async function fetchUtilityTypes(): Promise<{ id: number; name: string }[]> {
+  const res = await apiFetch('/properties/utility-types')
+  if (!res.ok) throw new Error('Error al cargar los tipos de servicio')
+  return res.json()
+}
+
+export async function fetchServiceProviders(utilityTypeId?: number): Promise<{ id: number; name: string; utilityType: { id: number } }[]> {
+  const url = utilityTypeId
+    ? `/properties/service-providers?utilityTypeId=${utilityTypeId}`
+    : '/properties/service-providers'
+  const res = await apiFetch(url)
+  if (!res.ok) throw new Error('Error al cargar los proveedores')
+  return res.json()
 }
 
 export async function fetchDocumentTypes(): Promise<{ id: number; name: string }[]> {

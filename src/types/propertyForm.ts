@@ -1,5 +1,13 @@
 import type { Availability, PropertyCategory, UtilityStatus, ImportantDate } from './properties'
 
+export type FormUtility = {
+  utilityTypeId: number
+  serviceProviderId: number
+  status: UtilityStatus
+  customerNumber: string
+  billDueDay: string
+}
+
 export type FormDocument = {
   name: string
   documentTypeId: number
@@ -22,12 +30,7 @@ export interface FormState {
   terrain: string
   ownerId: string
   tenantId: string
-  electricity: UtilityStatus
-  electricityBill: string
-  water: UtilityStatus
-  waterBill: string
-  gas: UtilityStatus
-  gasBill: string
+  utilities: FormUtility[]
   hasFinancials: boolean
   monthlyRentCLP: string
   administrationPct: string

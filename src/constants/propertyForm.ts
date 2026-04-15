@@ -9,18 +9,18 @@ export const PROPERTY_CATEGORIES: PropertyCategory[] = [
   'oficina', 'parcela', 'penthouse', 'sitio', 'terreno comercial', 'terreno urbano',
 ]
 
-export const UTILITY_OPTIONS: { value: UtilityStatus; label: string }[] = [
-  { value: 'al-dia', label: 'Al día' },
+export const UTILITY_STATUS_OPTIONS: { value: UtilityStatus; label: string }[] = [
+  { value: 'al-dia',    label: 'Al día' },
   { value: 'pendiente', label: 'Pendiente' },
-  { value: 'cortado', label: 'Cortado' },
+  { value: 'cortado',   label: 'Cortado' },
   { value: 'no-aplica', label: 'N/A' },
 ]
 
 export const DATE_TYPES: { value: ImportantDate['type']; label: string }[] = [
   { value: 'vencimiento', label: 'Vencimiento' },
-  { value: 'revision', label: 'Revisión' },
-  { value: 'pago', label: 'Pago' },
-  { value: 'inicio', label: 'Inicio' },
+  { value: 'revision',    label: 'Revisión' },
+  { value: 'pago',        label: 'Pago' },
+  { value: 'inicio',      label: 'Inicio' },
 ]
 
 export const NAV_SECTIONS = [
@@ -32,7 +32,6 @@ export const NAV_SECTIONS = [
   { id: 'financiero',      label: 'Financiero',       icon: Banknote },
   { id: 'documentacion',   label: 'Documentación',    icon: FolderOpen },
 ]
-
 
 export const inputCls = 'w-full h-8 px-3 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12px] text-ink placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition-colors cursor-pointer'
 export const selectCls = 'w-full h-8 px-3 rounded-lg bg-zinc-50 border border-[rgba(0,0,0,0.08)] text-[12px] text-ink focus:outline-none focus:border-zinc-400 focus:bg-white transition-colors appearance-none cursor-pointer'
