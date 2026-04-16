@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2, ImagePlus, X, Loader2, Check, UserPlus, Paperclip, FileText } from 'lucide-react'
 import { fetchPersons } from '../api/persons'
 import { uploadImage, uploadDocument } from '../api/storage'
-import { createProperty, fetchProperty, fetchDocumentTypes, fetchUtilityTypes, fetchServiceProviders, fetchCountries, fetchRegions, fetchCities, fetchCommunes } from '../api/properties'
+import { createProperty, updateProperty, fetchProperty, fetchDocumentTypes, fetchUtilityTypes, fetchServiceProviders, fetchCountries, fetchRegions, fetchCities, fetchCommunes } from '../api/properties'
 import type { Availability, PropertyCategory, UtilityStatus } from '../types/properties'
 import type { FormState, FormDocument, FormUtility } from '../types/propertyForm'
 import type { PersonOption } from '../types/persons'
@@ -259,54 +259,62 @@ export default function PropertyFormPage() {
     if (uploadingImage || uploadingDocIndex !== null) return
     if (!validate()) return
     setSubmitting(true)
+
+    const payload = {
+      name: form.name.trim(),
+      description: form.description.trim() || undefined,
+      category: form.category,
+      availability: form.availability,
+      address: form.address.trim(),
+      countryId: Number(form.countryId),
+      regionId: Number(form.regionId),
+      cityId: Number(form.cityId),
+      communeId: form.communeId ? Number(form.communeId) : undefined,
+      contact: form.contact || undefined,
+      valueUF: form.valueUF ? Number(form.valueUF) : undefined,
+      images: form.images,
+      bedrooms: form.bedrooms ? Number(form.bedrooms) : undefined,
+      bathrooms: form.bathrooms ? Number(form.bathrooms) : undefined,
+      parkings: form.parkings ? Number(form.parkings) : undefined,
+      terrainM2: form.terrain ? Number(form.terrain) : undefined,
+      constructionM2: form.construction ? Number(form.construction) : undefined,
+      ownerId: Number(form.ownerId),
+      tenantId: form.tenantId ? Number(form.tenantId) : undefined,
+      utilities: form.utilities.filter(u => u.utilityTypeId).map(u => ({
+        utilityTypeId: u.utilityTypeId,
+        serviceProviderId: u.serviceProviderId || undefined,
+        status: u.status,
+        customerNumber: u.customerNumber || undefined,
+        billDueDay: u.billDueDay ? Number(u.billDueDay) : undefined,
+      })),
+      financials: form.hasFinancials && form.monthlyRentCLP ? {
+        monthlyRentCLP: Number(form.monthlyRentCLP),
+        administrationPct: Number(form.administrationPct),
+        paymentDueDay: Number(form.paymentDueDay),
+      } : undefined,
+      documents: form.documents.filter(d => d.name.trim() && d.date && d.documentTypeId).map(d => ({
+        name: d.name.trim(),
+        documentTypeId: d.documentTypeId,
+        date: d.date,
+        fileUrl: d.url || undefined,
+      })),
+      importantDates: form.importantDates.filter(d => d.label && d.date).map(d => ({
+        label: d.label,
+        date: d.date,
+        type: d.type,
+      })),
+    }
+
     try {
-      const { id } = await createProperty({
-        name: form.name.trim(),
-        description: form.description.trim() || undefined,
-        category: form.category,
-        availability: form.availability,
-        address: form.address.trim(),
-        countryId: Number(form.countryId),
-        regionId: Number(form.regionId),
-        cityId: Number(form.cityId),
-        communeId: form.communeId ? Number(form.communeId) : undefined,
-        contact: form.contact || undefined,
-        valueUF: form.valueUF ? Number(form.valueUF) : undefined,
-        images: form.images,
-        bedrooms: form.bedrooms ? Number(form.bedrooms) : undefined,
-        bathrooms: form.bathrooms ? Number(form.bathrooms) : undefined,
-        parkings: form.parkings ? Number(form.parkings) : undefined,
-        terrainM2: form.terrain ? Number(form.terrain) : undefined,
-        constructionM2: form.construction ? Number(form.construction) : undefined,
-        ownerId: Number(form.ownerId),
-        tenantId: form.tenantId ? Number(form.tenantId) : undefined,
-        utilities: form.utilities.filter(u => u.utilityTypeId).map(u => ({
-          utilityTypeId: u.utilityTypeId,
-          serviceProviderId: u.serviceProviderId || undefined,
-          status: u.status,
-          customerNumber: u.customerNumber || undefined,
-          billDueDay: u.billDueDay ? Number(u.billDueDay) : undefined,
-        })),
-        financials: form.hasFinancials && form.monthlyRentCLP ? {
-          monthlyRentCLP: Number(form.monthlyRentCLP),
-          administrationPct: Number(form.administrationPct),
-          paymentDueDay: Number(form.paymentDueDay),
-        } : undefined,
-        documents: form.documents.filter(d => d.name.trim() && d.date && d.documentTypeId).map(d => ({
-          name: d.name.trim(),
-          documentTypeId: d.documentTypeId,
-          date: d.date,
-          fileUrl: d.url || undefined,
-        })),
-        importantDates: form.importantDates.filter(d => d.label && d.date).map(d => ({
-          label: d.label,
-          date: d.date,
-          type: d.type,
-        })),
-      })
-      navigate(`/propiedades/${id}`)
+      if (isEditing && id) {
+        await updateProperty(Number(id), payload)
+        navigate(`/propiedades/${id}`)
+      } else {
+        const { id: newId } = await createProperty(payload)
+        navigate(`/propiedades/${newId}`)
+      }
     } catch {
-      alert('Error al crear la propiedad')
+      alert(isEditing ? 'Error al actualizar la propiedad' : 'Error al crear la propiedad')
     } finally {
       setSubmitting(false)
     }

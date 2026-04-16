@@ -224,6 +224,15 @@ export async function createProperty(payload: CreatePropertyPayload): Promise<{ 
   return res.json()
 }
 
+export async function updateProperty(id: number, payload: CreatePropertyPayload): Promise<{ id: number }> {
+  const res = await apiFetch(`/properties/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw new Error('Error al actualizar la propiedad')
+  return res.json()
+}
+
 export async function fetchPropertyUtilities(propertyId: number): Promise<PropertyUtility[]> {
   const res = await apiFetch(`/properties/${propertyId}/utilities`)
   if (!res.ok) throw new Error('Error al cargar los servicios básicos')
