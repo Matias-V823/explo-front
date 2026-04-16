@@ -223,3 +223,18 @@ export async function createProperty(payload: CreatePropertyPayload): Promise<{ 
   if (!res.ok) throw new Error('Error al crear la propiedad')
   return res.json()
 }
+
+export async function fetchPropertyUtilities(propertyId: number): Promise<PropertyUtility[]> {
+  const res = await apiFetch(`/properties/${propertyId}/utilities`)
+  if (!res.ok) throw new Error('Error al cargar los servicios básicos')
+  return res.json()
+}
+
+export async function fetchBillStatus(utilityId: number): Promise<Record<string, unknown>> {
+  const res = await apiFetch(`/properties/utilities/${utilityId}/bill-status`)
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error((body as { message?: string }).message ?? `Error ${res.status}`)
+  }
+  return res.json()
+}
