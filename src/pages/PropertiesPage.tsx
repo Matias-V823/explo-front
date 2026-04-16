@@ -6,6 +6,7 @@ import { fetchProperties } from '../api/properties'
 import PropertyCard from '../components/properties/PropertyCard'
 import Pagination from '../components/properties/Pagination'
 import FiltersSection from '../components/properties/PropertyFilters'
+import DeletePropertyModal from '../components/properties/DeletePropertyModal'
 
 const PAGE_SIZE = 5
 
@@ -18,6 +19,7 @@ export default function PropertiesPage() {
   const [availability, setAvailability] = useState<FilterAvailability>('todas')
   const [category, setCategory] = useState<PropertyCategory | 'todas'>('todas')
   const [page, setPage] = useState(1)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
 
   useEffect(() => {
     fetchProperties()
@@ -122,7 +124,10 @@ export default function PropertiesPage() {
                 property={property}
                 onView={id => navigate(`/propiedades/${id}`)}
                 onEdit={id => navigate(`/propiedades/${id}/editar`)}
-                onDelete={id => console.log('eliminar', id)}
+                onDelete={id => {
+                  const p = properties.find(p => p.id === id)
+                  if (p) setDeleteTarget({ id: p.id, name: p.name })
+                }}
               />
             ))}
           </div>
@@ -144,6 +149,18 @@ export default function PropertiesPage() {
             Intenta con otro término o cambia el filtro de disponibilidad.
           </p>
         </div>
+      )}
+
+      {deleteTarget && (
+        <DeletePropertyModal
+          propertyId={deleteTarget.id}
+          propertyName={deleteTarget.name}
+          onClose={() => setDeleteTarget(null)}
+          onDeleted={() => {
+            setProperties(prev => prev.filter(p => p.id !== deleteTarget.id))
+            setDeleteTarget(null)
+          }}
+        />
       )}
     </div>
   )

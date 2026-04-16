@@ -233,6 +233,11 @@ export async function updateProperty(id: number, payload: CreatePropertyPayload)
   return res.json()
 }
 
+export async function deleteProperty(id: number): Promise<void> {
+  const res = await apiFetch(`/properties/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error('Error al eliminar la propiedad')
+}
+
 export async function fetchPropertyUtilities(propertyId: number): Promise<PropertyUtility[]> {
   const res = await apiFetch(`/properties/${propertyId}/utilities`)
   if (!res.ok) throw new Error('Error al cargar los servicios básicos')

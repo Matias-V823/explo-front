@@ -10,6 +10,7 @@ import PropertyFinancials from '../components/properties/PropertyFinancials'
 import PropertyDocumentList from '../components/properties/PropertyDocumentList'
 import PropertyDateList from '../components/properties/PropertyDateList'
 import PropertyStats from '../components/properties/PropertyStats'
+import DeletePropertyModal from '../components/properties/DeletePropertyModal'
 import { AVAILABILITY_CONFIG } from '../utils/property'
 
 export default function PropertyDetailPage() {
@@ -18,6 +19,7 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<PropertyDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -109,7 +111,7 @@ export default function PropertyDetailPage() {
               <Pencil size={12} strokeWidth={2.5} />
             </button>
             <button
-              onClick={() => navigate(`/propiedades/${property.id}/eliminar`)}
+              onClick={() => setShowDeleteModal(true)}
               className="flex items-center gap-2 px-2 py-2 bg-red-600/90 text-white text-[10px] font-semibold rounded-full hover:bg-red-700 transition-colors cursor-pointer shrink-0 mt-1"
             >
               <Trash size={12} strokeWidth={2.5} />
@@ -139,6 +141,14 @@ export default function PropertyDetailPage() {
         </div>
 
       </div>
+      {showDeleteModal && (
+        <DeletePropertyModal
+          propertyId={property.id}
+          propertyName={property.name}
+          onClose={() => setShowDeleteModal(false)}
+          onDeleted={() => navigate('/propiedades')}
+        />
+      )}
     </div>
   )
 }
