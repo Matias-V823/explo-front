@@ -5,10 +5,10 @@ import { useAuthStore } from '../store/authStore'
 const navItems = [
   { to: '/', label: 'Home', end: true },
   { to: '/propiedades', label: 'Propiedades' },
-  { to: '/contactos', label: 'Contactos' },
-  { to: '/boletas', label: 'Boletas' },
+  // { to: '/contactos', label: 'Contactos' },
+  // { to: '/boletas', label: 'Boletas' },
   { to: '/mapa', label: 'Mapa' },
-  { to: '/transacciones', label: 'Transacciones' },
+  // { to: '/transacciones', label: 'Transacciones' },
   { to: '/calendario', label: 'Calendario' },
 ]
 

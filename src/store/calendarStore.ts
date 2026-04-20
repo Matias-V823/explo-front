@@ -15,7 +15,7 @@ interface CalendarState {
   removeEvent: (id: string) => Promise<void>
 }
 
-export const useCalendarStore = create<CalendarState>((set) => ({
+export const useCalendarStore = create<CalendarState>((set, get) => ({
   events: [],
   loading: false,
 
@@ -35,6 +35,8 @@ export const useCalendarStore = create<CalendarState>((set) => ({
   },
 
   removeEvent: async (id) => {
+    const event = get().events.find(e => e.id === id)
+    if (!event || event.source !== 'manual') return
     await deleteCalendarEvent(id)
     set((state) => ({ events: state.events.filter((e) => e.id !== id) }))
   },

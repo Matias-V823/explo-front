@@ -1,5 +1,6 @@
 import { Fragment, useState, useEffect, useRef } from 'react'
-import { ChevronLeft, ChevronRight, Plus, X, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, X, Trash2, Building2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useCalendarStore } from '../store/calendarStore'
 import type { CalendarEventFull, CreateEventPayload } from '../api/calendar'
 import NewEventModal from '../components/calendar/NewEventModal'
@@ -80,6 +81,7 @@ interface DetailPopover {
 
 export default function CalendarPage() {
   const today = new Date()
+  const navigate = useNavigate()
   const [currentMonday, setCurrentMonday] = useState(() => getMonday(today))
   const [selectedSlot, setSelectedSlot] = useState<{ date: Date; hour: number } | null>(null)
   const [detail, setDetail] = useState<DetailPopover | null>(null)
@@ -119,6 +121,7 @@ export default function CalendarPage() {
 
   const openCreate = (date: Date, hour: number) => {
     setDetail(null)
+    // property-sourced events are read-only — clicking an empty slot still opens modal
     setSelectedSlot({ date, hour })
   }
 
@@ -381,7 +384,7 @@ export default function CalendarPage() {
               </button>
             </div>
 
-            <div className="mb-3">
+            <div className="flex items-center gap-1.5 flex-wrap mb-3">
               <span
                 className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-md"
                 style={{
@@ -392,6 +395,15 @@ export default function CalendarPage() {
               >
                 {TYPE_CONFIG[detail.event.type].label}
               </span>
+              {detail.event.source === 'property' && (
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-md"
+                  style={{ backgroundColor: 'rgba(0,0,0,0.04)', color: '#6B6660' }}
+                >
+                  <Building2 size={10} strokeWidth={2} />
+                  Propiedad
+                </span>
+              )}
             </div>
 
             {detail.event.description && (
@@ -403,16 +415,29 @@ export default function CalendarPage() {
               </p>
             )}
 
-            <button
-              onClick={() => handleDelete(detail.event.id)}
-              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-[9px] text-xs font-semibold transition-colors cursor-pointer"
-              style={{ border: '1px solid rgba(192,48,42,0.18)', color: '#C0302A', backgroundColor: 'transparent' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#FFF1F0'}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
-            >
-              <Trash2 size={11} />
-              Eliminar evento
-            </button>
+            {detail.event.source === 'property' && detail.event.propertyId != null ? (
+              <button
+                onClick={() => { setDetail(null); navigate(`/propiedades/${detail.event.propertyId}`) }}
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-[9px] text-xs font-semibold transition-colors cursor-pointer"
+                style={{ border: '1px solid rgba(0,0,0,0.1)', color: '#0F0F0E', backgroundColor: 'transparent' }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(0,0,0,0.04)'}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+              >
+                <Building2 size={11} />
+                Ver propiedad
+              </button>
+            ) : (
+              <button
+                onClick={() => handleDelete(detail.event.id)}
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-[9px] text-xs font-semibold transition-colors cursor-pointer"
+                style={{ border: '1px solid rgba(192,48,42,0.18)', color: '#C0302A', backgroundColor: 'transparent' }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#FFF1F0'}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+              >
+                <Trash2 size={11} />
+                Eliminar evento
+              </button>
+            )}
           </div>
         </>
       )}
