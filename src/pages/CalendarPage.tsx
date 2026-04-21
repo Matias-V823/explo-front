@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { useCalendarStore } from '../store/calendarStore'
 import type { CalendarEventFull, CreateEventPayload } from '../api/calendar'
 import NewEventModal from '../components/calendar/NewEventModal'
+import { WEEKDAY_LABELS, toDateISO, getMonday, addDays, isSameDay, formatWeekRange } from '../utils/calendar'
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8)
-const DAYS_SHORT = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
 const TYPE_CONFIG = {
   cobro: {
@@ -37,42 +37,6 @@ const TYPE_CONFIG = {
 
 type EventType = keyof typeof TYPE_CONFIG
 
-function getMonday(date: Date): Date {
-  const d = new Date(date)
-  const day = d.getDay()
-  d.setDate(d.getDate() - (day === 0 ? 6 : day - 1))
-  d.setHours(0, 0, 0, 0)
-  return d
-}
-
-function addDays(date: Date, n: number): Date {
-  const d = new Date(date)
-  d.setDate(d.getDate() + n)
-  return d
-}
-
-function toISO(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
-
-function isSameDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  )
-}
-
-function formatWeekRange(monday: Date): string {
-  const sunday = addDays(monday, 6)
-  const start = monday.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })
-  const end = sunday.toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' })
-  return `${start} – ${end}`
-}
-
 interface DetailPopover {
   event: CalendarEventFull
   x: number
@@ -102,7 +66,7 @@ export default function CalendarPage() {
 
   const getSlotEvents = (date: Date, hour: number) =>
     events.filter((e) => {
-      if (e.date !== toISO(date)) return false
+      if (e.date !== toDateISO(date)) return false
       return parseInt(e.startTime.split(':')[0]) === hour
     })
 
@@ -238,7 +202,7 @@ export default function CalendarPage() {
                     className="text-[10px] font-bold uppercase tracking-[0.7px] mb-1.25"
                     style={{ color: isToday ? '#A87B1E' : '#9B9791' }}
                   >
-                    {DAYS_SHORT[i]}
+                    {WEEKDAY_LABELS[i]}
                   </span>
                   <div
                     className="w-6.5 h-6.5 rounded-full flex items-center justify-center text-[13px] font-bold transition-colors"
