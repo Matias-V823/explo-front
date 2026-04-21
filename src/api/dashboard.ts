@@ -1,5 +1,6 @@
 import type { DashboardData } from '../types'
 import { apiFetch } from './client'
+import { fetchStatistics, computeProgressItems } from './statistics'
 
 interface BackendUser {
   id: number
@@ -19,7 +20,10 @@ export interface DashboardResult {
 }
 
 export async function fetchDashboardData(): Promise<DashboardResult> {
-  const response = await apiFetch('/users/me')
+  const [response, stats] = await Promise.all([
+    apiFetch('/users/me'),
+    fetchStatistics(),
+  ])
   if (!response.ok) throw new Error('No se pudo obtener el perfil del usuario')
   const backendUser: BackendUser = await response.json()
 
@@ -33,48 +37,7 @@ export async function fetchDashboardData(): Promise<DashboardResult> {
       role: backendUser.role?.name ?? '',
       avatarUrl: backendUser.avatarUrl! ?? undefined,
     },
-    metrics: [
-      {
-        id: 'total-propiedades',
-        label: 'Propiedades activas',
-        value: 42,
-        delta: 3,
-        deltaLabel: 'este mes',
-        variant: 'neutral',
-      },
-      {
-        id: 'boletas-generadas',
-        label: 'Boletas generadas',
-        value: 38,
-        delta: 2,
-        deltaLabel: 'pendientes',
-        variant: 'success',
-      },
-      {
-        id: 'contratos-vencer',
-        label: 'Contratos por vencer',
-        value: 5,
-        delta: -1,
-        deltaLabel: 'próximos 30 días',
-        variant: 'warning',
-      },
-      {
-        id: 'proximos-cobros',
-        label: 'Próximos cobros',
-        value: 12,
-        deltaLabel: 'esta semana',
-        variant: 'neutral',
-      },
-      {
-        id: 'ingresos-mes',
-        label: 'Ingresos del mes',
-        value: 18_450_000,
-        delta: 8.4,
-        deltaLabel: 'vs mes anterior',
-        variant: 'success',
-        unit: 'clp',
-      },
-    ],
+
     alerts: [
       {
         id: 'a1',
@@ -105,30 +68,13 @@ export async function fetchDashboardData(): Promise<DashboardResult> {
         date: '2026-04-10',
       },
     ],
-    tasks: [
-      { id: 't1', title: 'Llamar a C. Mendoza por atraso', priority: 'alta', done: false, dueDate: '2026-04-07', category: 'cliente' },
-      { id: 't2', title: 'Preparar contrato renovación Las Condes', priority: 'alta', done: false, dueDate: '2026-04-09', category: 'documento' },
-      { id: 't3', title: 'Enviar boletas de abril', priority: 'media', done: true, dueDate: '2026-04-05', category: 'admin' },
-      { id: 't4', title: 'Coordinar visita Vitacura 890', priority: 'media', done: false, dueDate: '2026-04-11', category: 'cliente' },
-      { id: 't5', title: 'Actualizar tasación Ñuñoa 320', priority: 'baja', done: false, dueDate: '2026-04-15', category: 'documento' },
-    ],
-    calendarEvents: [
-      { id: 'e1', title: 'Cobro — Providencia 831', date: '2026-04-08', type: 'cobro' },
-      { id: 'e2', title: 'Vencimiento — Las Condes 1420', date: '2026-04-24', type: 'vencimiento' },
-      { id: 'e3', title: 'Visita — Lo Barnechea 45', date: '2026-04-10', type: 'visita' },
-      { id: 'e4', title: 'Cobro — Ñuñoa 320', date: '2026-04-08', type: 'cobro' },
-      { id: 'e5', title: 'Cobro — Vitacura 890', date: '2026-04-10', type: 'cobro' },
-      { id: 'e6', title: 'Vencimiento — Vitacura 890', date: '2026-05-05', type: 'vencimiento' },
-    ],
-    revenueData: [
-      { month: 'Noviembre', ingresos: 14_200_000, meta: 16_000_000 },
-      { month: 'Diciembre', ingresos: 15_800_000, meta: 16_000_000 },
-      { month: 'Enero', ingresos: 13_400_000, meta: 16_000_000 },
-      { month: 'Febrero', ingresos: 16_900_000, meta: 16_000_000 },
-      { month: 'Marzo', ingresos: 17_020_000, meta: 16_000_000 },
-      { month: 'Abril', ingresos: 18_450_000, meta: 16_000_000 },
-    ],
+    progressItems: computeProgressItems(stats),
     weeklyActivity: [4, 6, 3, 8, 5, 2, 1],
+    kpiStats: {
+      properties: stats.properties.total,
+      contracts: stats.contracts.total,
+      expirations: stats.contracts.expiringNext30Days,
+    },
     properties: [
       { id: 'p1', address: 'Av. Providencia 831, Of. 402', status: 'arrendada', tenant: 'Carlos Mendoza', monthlyRent: 950_000, contractEnd: '2026-09-01' },
       { id: 'p2', address: 'Las Condes 1420, Dep. 78', status: 'arrendada', tenant: 'Familia Herrera', monthlyRent: 1_250_000, contractEnd: '2026-04-24' },

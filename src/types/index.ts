@@ -53,13 +53,23 @@ export interface RevenuePoint {
   meta: number
 }
 
+export interface ProgressItem {
+  label: string
+  value: number
+  variant?: 'dark' | 'yellow' | 'striped'
+}
+
+export interface KpiStatsData {
+  properties: number
+  contracts: number
+  expirations: number
+}
+
 export interface DashboardData {
   user: User
-  metrics: MetricData[]
   alerts: Alert[]
-  tasks: Task[]
-  calendarEvents: CalendarEvent[]
-  revenueData: RevenuePoint[]
   properties: Property[]
   weeklyActivity: number[]
+  progressItems: ProgressItem[]
+  kpiStats: KpiStatsData
 }

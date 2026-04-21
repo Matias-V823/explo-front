@@ -9,13 +9,6 @@ import ActivityFeed from '../components/dashboard/ActivityFeed'
 import ProgressStrip from '../components/dashboard/ProgressStrip'
 import KpiStats from '../components/dashboard/KpiStats'
 
-const progressItems = [
-  { label: 'Ocupación', value: 86, variant: 'dark' as const },
-  { label: 'Boletas al día', value: 90, variant: 'yellow' as const },
-  { label: 'Meta mensual', value: 115, variant: 'yellow' as const },
-  { label: 'Cobros recibidos', value: 72, variant: 'striped' as const },
-]
-
 export default function HomePage() {
   const { data, loading } = useDashboardData()
 
@@ -35,9 +28,9 @@ export default function HomePage() {
           <h1 className="text-[42px] font-extrabold text-ink tracking-[-1.5px] leading-[1.1] mb-5">
             {getGreeting()}, {data.user.name.split(' ')[0]}
           </h1>
-          <ProgressStrip items={progressItems} />
+          <ProgressStrip items={data.progressItems} />
         </div>
-        <KpiStats />
+        <KpiStats {...data.kpiStats} />
       </div>
 
       {/* Main grid */}
@@ -63,7 +56,7 @@ export default function HomePage() {
         </div>
 
         <div className="col-start-2 col-span-2 row-start-2 min-h-70">
-          <WeekCalendar events={data.calendarEvents} />
+          <WeekCalendar />
         </div>
       </div>
     </div>
