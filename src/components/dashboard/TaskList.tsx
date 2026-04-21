@@ -24,7 +24,9 @@ const alertTypeColor: Record<string, string> = {
 }
 
 export default function TaskList({ alerts }: TaskListProps) {
-  const tasks = useTaskStore((state) => state.tasks)
+  const allTasks = useTaskStore((state) => state.tasks)
+  const today = new Date().toISOString().slice(0, 10)
+  const tasks = allTasks.filter((t) => t.dueDate?.slice(0, 10) === today)
   const toggleTask = useTaskStore((state) => state.toggleTask)
   const { userId } = useDashboardData()
   const [tab, setTab] = useState<'tasks' | 'alerts'>('tasks')
