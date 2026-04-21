@@ -7,3 +7,37 @@
 }
 
 
+.cesium-viewer-bottom {
+  display: none !important;
+}
+
+
+.cesium-infoBox,
+.cesium-infoBox-visible {
+  background-color: white !important;
+  color: #18181b !important;
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  border: 1px solid #e4e4e7;
+}
+
+.cesium-infoBox-title {
+  background-color: #f4f4f5 !important;
+  color: #18181b !important;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+.cesium-button {
+  fill: #71717a !important;
+}
+
+.cesium-button:hover {
+  background-color: #e4e4e7 !important;
+  fill: #18181b !important;
+}
+
+.cesium-infoBox-iframe {
+  background-color: transparent !important;
+}
