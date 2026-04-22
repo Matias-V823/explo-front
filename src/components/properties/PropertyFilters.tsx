@@ -5,8 +5,9 @@ import { CATEGORIES } from '../../constants/categories'
 
 interface FilterCounts {
   total: number
-  arrendar: number
-  venta: number
+  disponibleArriendo: number
+  arrendada: number
+  disponibleVenta: number
   noDisponible: number
 }
 
@@ -21,10 +22,11 @@ interface FiltersSectionProps {
 }
 
 const FILTER_TABS: { value: FilterAvailability; label: string; countKey: keyof FilterCounts }[] = [
-  { value: 'todas',          label: 'Todas',         countKey: 'total'        },
-  { value: 'arrendar',      label: 'Arrendar',      countKey: 'arrendar'     },
-  { value: 'venta',         label: 'Venta',         countKey: 'venta'        },
-  { value: 'no-disponible', label: 'No disponible', countKey: 'noDisponible' },
+  { value: 'todas',               label: 'Todas',              countKey: 'total'             },
+  { value: 'disponible-arriendo', label: 'Disp. arriendo',     countKey: 'disponibleArriendo' },
+  { value: 'arrendada',           label: 'Arrendada',          countKey: 'arrendada'          },
+  { value: 'disponible-venta',    label: 'Disp. venta',        countKey: 'disponibleVenta'    },
+  { value: 'no-disponible',       label: 'No disponible',      countKey: 'noDisponible'       },
 ]
 
 

@@ -6,6 +6,12 @@ export function formatCurrency(value: number): string {
   }).format(value)
 }
 
+export function formatCLPShort(value: number): string {
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`
+  if (value >= 1_000) return `$${Math.round(value / 1_000)}K`
+  return `$${value}`
+}
+
 // "YYYY-MM-DD" strings are interpreted as UTC midnight by the Date constructor.
 // Appending T00:00:00 forces local-time parsing, avoiding the off-by-one-day
 // bug that appears in timezones behind UTC (e.g. Chile UTC-3/UTC-4).
