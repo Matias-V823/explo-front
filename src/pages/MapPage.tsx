@@ -8,8 +8,9 @@ import type { ListingProperty } from '../types/properties'
 Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_TOKEN ?? ''
 
 const AVAILABILITY_COLOR: Record<string, string> = {
-  arrendar: '#3b82f6',
-  venta: '#f59e0b',
+  'disponible-arriendo': '#3b82f6',
+  'arrendada': '#10b981',
+  'disponible-venta': '#f59e0b',
   'no-disponible': '#9ca3af',
 }
 
@@ -44,8 +45,9 @@ async function geocode(p: ListingProperty): Promise<{ lat: number; lng: number }
 }
 
 const AVAILABILITY_LABEL: Record<string, string> = {
-  arrendar: 'Arrendar',
-  venta: 'En venta',
+  'disponible-arriendo': 'Disponible arriendo',
+  'arrendada': 'Arrendada',
+  'disponible-venta': 'Disponible venta',
   'no-disponible': 'No disponible',
 }
 
