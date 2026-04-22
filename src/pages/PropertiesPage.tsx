@@ -66,8 +66,9 @@ export default function PropertiesPage() {
 
   const counts = {
     total: properties.length,
-    arrendar: properties.filter(p => p.availability === 'arrendar').length,
-    venta: properties.filter(p => p.availability === 'venta').length,
+    disponibleArriendo: properties.filter(p => p.availability === 'disponible-arriendo').length,
+    arrendada: properties.filter(p => p.availability === 'arrendada').length,
+    disponibleVenta: properties.filter(p => p.availability === 'disponible-venta').length,
     noDisponible: properties.filter(p => p.availability === 'no-disponible').length,
   }
 

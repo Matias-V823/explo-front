@@ -65,11 +65,28 @@ export interface KpiStatsData {
   expirations: number
 }
 
+export interface PropertyStats {
+  rented: number
+  available: number
+  maintenance: number
+  total: number
+}
+
+export interface RevenueStats {
+  totalMonthlyRent: number
+  paidAmount: number
+  pendingAmount: number
+  partialAmount: number
+  overdueAmount: number
+  adminIncome: number
+  collectionRate: number
+}
+
 export interface DashboardData {
   user: User
   alerts: Alert[]
-  properties: Property[]
-  weeklyActivity: number[]
+  propertyStats: PropertyStats
+  revenueStats: RevenueStats
   progressItems: ProgressItem[]
   kpiStats: KpiStatsData
 }

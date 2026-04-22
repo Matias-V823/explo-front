@@ -1,4 +1,4 @@
-export type Availability = 'arrendar' | 'venta' | 'no-disponible'
+export type Availability = 'disponible-arriendo' | 'arrendada' | 'disponible-venta' | 'no-disponible'
 export type FilterAvailability = Availability | 'todas'
 export type UtilityStatus = 'al-dia' | 'pendiente' | 'cortado' | 'no-aplica'
 

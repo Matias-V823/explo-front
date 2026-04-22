@@ -16,7 +16,7 @@ import NewPersonModal from '../components/properties/NewPersonModal'
 
 
 const EMPTY_FORM: FormState = {
-  name: '', category: 'departamento', availability: 'arrendar',
+  name: '', category: 'departamento', availability: 'disponible-arriendo',
   address: '', countryId: '', regionId: '', cityId: '', communeId: '',
   valueUF: '', contact: '', description: '',
   bedrooms: '', bathrooms: '', parkings: '', construction: '', terrain: '',
@@ -416,8 +416,9 @@ export default function PropertyFormPage() {
                 <select value={form.availability}
                   onChange={e => set('availability', e.target.value as Availability)}
                   className={selectCls}>
-                  <option value="arrendar">Arrendar</option>
-                  <option value="venta">Venta</option>
+                  <option value="disponible-arriendo">Disponible arriendo</option>
+                  <option value="arrendada">Arrendada</option>
+                  <option value="disponible-venta">Disponible venta</option>
                   <option value="no-disponible">No disponible</option>
                 </select>
               </div>
