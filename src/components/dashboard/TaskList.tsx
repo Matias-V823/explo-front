@@ -59,7 +59,7 @@ export default function TaskList({ alerts }: TaskListProps) {
   }, [userId])
 
   return (
-    <div className="card-dark p-5 h-200 flex flex-col bg-ink rounded-[20px] shadow-sm">
+    <div className="card-dark p-5 h-full flex flex-col bg-ink rounded-[20px] shadow-sm">
       {/* Header */}
       <div className="flex justify-between items-center mb-1">
         <div className='flex gap-2 justify-center items-center'>

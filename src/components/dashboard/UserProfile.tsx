@@ -1,12 +1,13 @@
 import type { User } from '../../types'
-import { formatCurrency } from '../../utils/formatters'
 
 interface UserProfileProps {
   user: User
-  monthlyIncome: number
 }
 
-export default function UserProfile({ user, monthlyIncome }: UserProfileProps) {
+export default function UserProfile({ user }: UserProfileProps) {
+
+  const role = user.role === 'AGENTE' ? 'AGENTE INMOBILIARIO' : user.role
+
   return (
     <div className="profile-bg h-full rounded-[20px] overflow-hidden relative border border-white/5">
       <img
@@ -16,7 +17,7 @@ export default function UserProfile({ user, monthlyIncome }: UserProfileProps) {
       />
 
       <div
-        className="absolute bottom-0 left-0 right-0 h-32 backdrop-blur-md"
+        className="absolute bottom-0 left-0 right-0 h-20 backdrop-blur-md"
         style={{
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 50%)',
           maskImage: 'linear-gradient(to bottom, transparent 0%, black 50%)',
@@ -27,16 +28,12 @@ export default function UserProfile({ user, monthlyIncome }: UserProfileProps) {
 
       <div className="flex items-center justify-between absolute bottom-0 left-0 right-0 p-5 z-10">
         <div>
-          <p className="text-sm font-bold text-white tracking-[-0.4px] leading-tight">
+          <p className="text-md font-bold text-white tracking-[-0.4px] leading-tight">
             {user.name}
           </p>
-          <p className="text-[10px] text-zinc-100 text-start font-mono">
-            {user.role}
+          <p className="text-xs text-zinc-100 text-start font-mono">
+            {role}
           </p>
-        </div>
-
-        <div className="inline-flex items-center px-4 py-1.75 rounded-full bg-white/15 border border-white/20 text-[10px] font-bold text-white tracking-[-0.2px]">
-          {formatCurrency(monthlyIncome)}
         </div>
       </div>
     </div>

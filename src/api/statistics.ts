@@ -24,6 +24,15 @@ export interface Statistics {
     pending: number
     cut: number
   }
+  revenue: {
+    totalMonthlyRent: number
+    paidAmount: number
+    pendingAmount: number
+    partialAmount: number
+    overdueAmount: number
+    adminIncome: number
+    collectionRate: number
+  }
 }
 
 export interface ProgressItem {

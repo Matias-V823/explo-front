@@ -1,4 +1,4 @@
-import type { DashboardData } from '../types'
+import type { DashboardData, PropertyStats, RevenueStats } from '../types'
 import { apiFetch } from './client'
 import { fetchStatistics, computeProgressItems } from './statistics'
 
@@ -69,21 +69,26 @@ export async function fetchDashboardData(): Promise<DashboardResult> {
       },
     ],
     progressItems: computeProgressItems(stats),
-    weeklyActivity: [4, 6, 3, 8, 5, 2, 1],
     kpiStats: {
       properties: stats.properties.total,
       contracts: stats.contracts.total,
       expirations: stats.contracts.expiringNext30Days,
     },
-    properties: [
-      { id: 'p1', address: 'Av. Providencia 831, Of. 402', status: 'arrendada', tenant: 'Carlos Mendoza', monthlyRent: 950_000, contractEnd: '2026-09-01' },
-      { id: 'p2', address: 'Las Condes 1420, Dep. 78', status: 'arrendada', tenant: 'Familia Herrera', monthlyRent: 1_250_000, contractEnd: '2026-04-24' },
-      { id: 'p3', address: 'Vitacura 890, Casa', status: 'arrendada', tenant: 'Roberto Silva', monthlyRent: 1_800_000, contractEnd: '2026-05-05' },
-      { id: 'p4', address: 'Lo Barnechea 45, Dep. 12', status: 'mantencion', monthlyRent: 780_000 },
-      { id: 'p5', address: 'Ñuñoa 320, Dep. 3A', status: 'arrendada', tenant: 'Ana Fuentes', monthlyRent: 620_000, contractEnd: '2026-11-15' },
-      { id: 'p6', address: 'Maipú 1100, Casa', status: 'disponible', monthlyRent: 550_000 },
-      { id: 'p7', address: 'Santiago Centro 890', status: 'disponible', monthlyRent: 480_000 },
-    ],
+    propertyStats: {
+      rented: stats.properties.withTenant,
+      available: stats.properties.available,
+      maintenance: stats.properties.total - stats.properties.withTenant - stats.properties.available,
+      total: stats.properties.total,
+    } satisfies PropertyStats,
+    revenueStats: {
+      totalMonthlyRent: stats.revenue.totalMonthlyRent,
+      paidAmount: stats.revenue.paidAmount,
+      pendingAmount: stats.revenue.pendingAmount,
+      partialAmount: stats.revenue.partialAmount,
+      overdueAmount: stats.revenue.overdueAmount,
+      adminIncome: stats.revenue.adminIncome,
+      collectionRate: stats.revenue.collectionRate,
+    } satisfies RevenueStats,
   }
 
   return { data, userId: backendUser.id }
