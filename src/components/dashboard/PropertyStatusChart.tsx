@@ -39,9 +39,9 @@ export default function PropertyStatusChart({ propertyStats, revenueStats }: Pro
             estado actual
           </Typography>
         </Box>
-        <IconButton size="small" sx={{ width: 28, height: 28, borderRadius: '10px', border: '1px solid rgba(0,0,0,0.07)' }}>
+        {/* <IconButton size="small" sx={{ width: 28, height: 28, borderRadius: '10px', border: '1px solid rgba(0,0,0,0.07)' }}>
           <ArrowUpRight size={14} color="#6b7280" />
-        </IconButton>
+        </IconButton> */}
       </Box>
 
       <Box className="flex-1 flex items-center justify-center relative min-h-40">

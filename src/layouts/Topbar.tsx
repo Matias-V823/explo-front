@@ -65,7 +65,7 @@ export default function Topbar() {
         <div className="flex items-center gap-1 shrink-0 h-9">
           <NavLink to="/configuracion" className={settingsLinkClass}>
             <Settings size={15} strokeWidth={1.8} />
-            <span className="text-[13.5px] font-medium">Settings</span>
+            <span className="text-[13.5px] font-medium" title='Configuración'>Configuración</span>
           </NavLink>
           <button className="relative w-9 h-9 rounded-full bg-white border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-ink-2 hover:bg-zinc-50 transition-colors cursor-pointer">
             <Bell size={15} strokeWidth={1.8} />

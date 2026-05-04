@@ -92,9 +92,9 @@ export default function RevenueChart({ revenueStats }: RevenueChartProps) {
       {/* Cabecera */}
       <div className="flex justify-between items-start mb-1">
         <p className="text-base font-bold text-ink tracking-[-0.3px]">Ingresos</p>
-        <button className="w-7 h-7 rounded-[10px] border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-ink-3 cursor-pointer">
+        {/* <button className="w-7 h-7 rounded-[10px] border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-ink-3 cursor-pointer">
           <ArrowUpRight size={14} />
-        </button>
+        </button> */}
       </div>
 
       {/* KPI principal */}
