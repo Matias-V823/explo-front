@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { Search, X, ChevronDown, Check } from 'lucide-react'
+import { Search, X, ChevronDown, Check, Plus } from 'lucide-react'
 import type { FilterAvailability, PropertyCategory } from '../../types/properties'
 import { CATEGORIES } from '../../constants/categories'
 
@@ -19,6 +19,7 @@ interface FiltersSectionProps {
   onSearch: (value: string) => void
   onAvailability: (value: FilterAvailability) => void
   onCategory: (value: PropertyCategory | 'todas') => void
+  onAdd?: () => void
 }
 
 const FILTER_TABS: { value: FilterAvailability; label: string; countKey: keyof FilterCounts }[] = [
@@ -96,6 +97,7 @@ export default function FiltersSection({
   onSearch,
   onAvailability,
   onCategory,
+  onAdd,
 }: FiltersSectionProps) {
   return (
     <div className="flex items-center gap-3 flex-wrap min-w-0">
@@ -144,7 +146,18 @@ export default function FiltersSection({
           </button>
         ))}
       </div>
-      <CategoryDropdown value={category} onChange={onCategory} />
+      <div className="flex items-center gap-2">
+        <CategoryDropdown value={category} onChange={onCategory} />
+        {onAdd && (
+          <button
+            onClick={onAdd}
+            className="md:hidden flex items-center justify-center gap-1.5 px-3 py-2 bg-ink text-white text-[12.5px] font-medium rounded-xl hover:bg-ink/85 transition-colors cursor-pointer shrink-0"
+          >
+            <Plus size={13} strokeWidth={2.5} />
+            Agregar propiedad
+          </button>
+        )}
+      </div>
     </div>
   )
 }

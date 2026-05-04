@@ -92,10 +92,11 @@ export default function PropertiesPage() {
           onSearch={handleSearch}
           onAvailability={handleAvailability}
           onCategory={handleCategory}
+          onAdd={() => navigate('/propiedades/nueva')}
         />
         <button
           onClick={() => navigate('/propiedades/nueva')}
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-ink text-white text-[13px] font-medium rounded-xl hover:bg-ink/85 transition-colors cursor-pointer w-full md:w-auto shrink-0"
+          className="hidden md:flex items-center justify-center gap-2 px-4 py-2 bg-ink text-white text-[13px] font-medium rounded-xl hover:bg-ink/85 transition-colors cursor-pointer w-full md:w-auto shrink-0"
         >
           <Plus size={14} strokeWidth={2.5} />
           Agregar propiedad

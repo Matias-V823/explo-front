@@ -236,8 +236,8 @@ export default function MapaPage() {
       <div ref={containerRef} className="rounded-xl overflow-hidden shadow-lg relative" style={{ height: '80vh' }}>
 
         {/* Filter panel */}
-        <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-3 flex flex-col gap-2 min-w-[160px]">
-          <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider px-1">Estado</p>
+        <div className="absolute top-3 left-3 md:top-4 md:left-4 z-10 bg-white/90 backdrop-blur-sm rounded-xl md:rounded-2xl shadow-lg p-2 md:p-3 flex flex-col gap-1.5 md:gap-2 min-w-[110px] md:min-w-[160px]">
+          <p className="text-[9px] md:text-[10px] font-semibold text-zinc-400 uppercase tracking-wider px-0.5 md:px-1">Estado</p>
           {FILTERS.map(f => (
             <button
               key={f}
@@ -246,15 +246,15 @@ export default function MapaPage() {
                 backgroundColor: FILTER_COLORS[f],
                 opacity: filter === f ? 1 : 0.42,
               }}
-              className={`px-3 py-1.5 rounded-lg text-white text-xs font-semibold transition-all hover:opacity-75 ${filter === f ? 'shadow-md' : ''}`}
+              className={`px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-white text-[11px] md:text-xs font-semibold transition-all hover:opacity-75 ${filter === f ? 'shadow-md' : ''}`}
             >
               {FILTER_LABELS[f]}
             </button>
           ))}
-          <div className="border-t border-zinc-200 pt-2 mt-0.5">
+          <div className="border-t border-zinc-200 pt-1.5 md:pt-2 mt-0.5">
             <button
               onClick={() => setShowHeatmap(h => !h)}
-              className={`w-full px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`w-full px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[11px] md:text-xs font-semibold transition-all ${
                 showHeatmap
                   ? 'bg-rose-500 text-white shadow-md'
                   : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
