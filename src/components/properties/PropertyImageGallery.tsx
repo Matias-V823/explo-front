@@ -14,7 +14,7 @@ export default function PropertyImageGallery({ images, name, valueUF, badgeLabel
   const [activeIdx, setActiveIdx] = useState(0)
 
   return (
-    <div className="relative rounded-3xl overflow-hidden h-[78vh] shadow-xl">
+    <div className="relative rounded-3xl overflow-hidden h-[50vh] md:h-[60vh] xl:h-[78vh] shadow-xl">
 
       {images.map((src, i) => (
         <img
@@ -43,9 +43,9 @@ export default function PropertyImageGallery({ images, name, valueUF, badgeLabel
 
       <div className="absolute bottom-7 left-7">
         <p className="text-[11px] font-medium text-white/60 mb-1 uppercase tracking-[0.6px]">Valor</p>
-        <p className="text-[44px] font-extrabold text-white tracking-[-2px] leading-none">
+        <p className="text-[32px] md:text-[44px] font-extrabold text-white tracking-[-2px] leading-none">
           {valueUF.toLocaleString('es-CL')}
-          <span className="text-[20px] font-medium ml-2 tracking-[-0.5px] text-white/75">UF</span>
+          <span className="text-[16px] md:text-[20px] font-medium ml-2 tracking-[-0.5px] text-white/75">UF</span>
         </p>
       </div>
 

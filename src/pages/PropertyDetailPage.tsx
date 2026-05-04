@@ -52,10 +52,10 @@ export default function PropertyDetailPage() {
   const badge = AVAILABILITY_CONFIG[property.availability]
 
   return (
-    <div className="flex items-start gap-6 px-7 pt-6 pb-10">
+    <div className="flex flex-col xl:flex-row items-start gap-5 xl:gap-6 px-4 md:px-6 xl:px-7 pt-5 md:pt-6 pb-10">
 
       {/* ── Left column ── */}
-      <div className="flex flex-col w-[44%] shrink-0 gap-4">
+      <div className="flex flex-col w-full xl:w-[44%] xl:shrink-0 gap-4">
         <PropertyImageGallery
           images={property.images}
           name={property.name}
@@ -87,20 +87,20 @@ export default function PropertyDetailPage() {
       </div>
 
       {/* ── Right column ── */}
-      <div className="flex-1 flex flex-col mt-[14%]">
+      <div className="flex-1 flex flex-col w-full xl:mt-[14%]">
 
         {/* Header — outside the card */}
-        <div className="flex items-start justify-between mb-4 px-1">
-          <div>
+        <div className="flex items-start justify-between gap-3 mb-4 px-1">
+          <div className="min-w-0 flex-1">
             <p className="text-[11px] font-bold uppercase tracking-[0.7px] text-zinc-400 mb-1.5">
               {property.category} · {[property.commune?.name, property.city.name].filter(Boolean).join(', ')}
             </p>
-            <h1 className="text-[30px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1]">
+            <h1 className="text-[22px] md:text-[28px] xl:text-[30px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1]">
               {property.name}
             </h1>
-            <div className="flex items-center gap-1.5 text-[13px] text-zinc-400 mt-1.5">
-              <MapPin size={13} strokeWidth={1.8} />
-              {[property.address, property.commune?.name, property.city.name, property.country.name].filter(Boolean).join(', ')}
+            <div className="flex items-start flex-wrap gap-x-1.5 gap-y-0.5 text-[13px] text-zinc-400 mt-1.5">
+              <MapPin size={13} strokeWidth={1.8} className="shrink-0 mt-0.5" />
+              <span className="break-words">{[property.address, property.commune?.name, property.city.name, property.country.name].filter(Boolean).join(', ')}</span>
             </div>
           </div>
           <div className='flex gap-2'>
@@ -120,7 +120,7 @@ export default function PropertyDetailPage() {
         </div>
 
         {/* Detail card */}
-        <div className="bg-white rounded-3xl shadow-sm overflow-y-auto max-h-[150vh] px-7 py-6
+        <div className="bg-white rounded-3xl shadow-sm overflow-y-auto xl:max-h-[150vh] px-5 md:px-7 py-6
           [&::-webkit-scrollbar]:w-1.5
           [&::-webkit-scrollbar-track]:bg-transparent
           [&::-webkit-scrollbar-thumb]:bg-zinc-200

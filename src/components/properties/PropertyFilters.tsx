@@ -98,9 +98,9 @@ export default function FiltersSection({
   onCategory,
 }: FiltersSectionProps) {
   return (
-    <div className="flex items-center gap-3 flex-wrap">
+    <div className="flex items-center gap-3 flex-wrap min-w-0">
       {/* Search */}
-      <div className="relative flex-1 min-w-55 max-w-55">
+      <div className="relative w-full md:flex-1 md:min-w-55 md:max-w-72">
         <Search
           size={14}
           strokeWidth={2}
@@ -124,7 +124,7 @@ export default function FiltersSection({
       </div>
 
       {/* Availability tabs */}
-      <div className="flex items-center gap-1 bg-white/60 border border-zinc-200 rounded-xl p-1">
+      <div className="flex items-center gap-1 bg-white/60 border border-zinc-200 rounded-xl p-1 overflow-x-auto w-full md:w-auto">
         {FILTER_TABS.map(tab => (
           <button
             key={tab.value}

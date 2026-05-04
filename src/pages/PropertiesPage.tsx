@@ -73,9 +73,9 @@ export default function PropertiesPage() {
   }
 
   return (
-    <div className="px-10 pt-9 pb-10 max-w-360 mx-auto w-full">
-      <div className="mb-6">
-        <h1 className="text-[36px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1] mb-1">
+    <div className="px-4 md:px-6 xl:px-10 pt-5 md:pt-7 xl:pt-9 pb-6 xl:pb-10 max-w-360 mx-auto w-full">
+      <div className="mb-5 md:mb-6">
+        <h1 className="text-[24px] md:text-[30px] xl:text-[36px] font-extrabold text-ink tracking-[-1.2px] leading-[1.1] mb-1">
           Propiedades
         </h1>
         <p className="text-[13px] text-ink-3">
@@ -83,7 +83,7 @@ export default function PropertiesPage() {
         </p>
       </div>
 
-      <div className="flex items-center justify-between gap-3 mb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
         <FiltersSection
           search={search}
           availability={availability}
@@ -95,7 +95,7 @@ export default function PropertiesPage() {
         />
         <button
           onClick={() => navigate('/propiedades/nueva')}
-          className="flex items-center gap-2 px-4 py-2 bg-ink text-white text-[13px] font-medium rounded-xl hover:bg-ink/85 transition-colors cursor-pointer shrink-0"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-ink text-white text-[13px] font-medium rounded-xl hover:bg-ink/85 transition-colors cursor-pointer w-full md:w-auto shrink-0"
         >
           <Plus size={14} strokeWidth={2.5} />
           Agregar propiedad

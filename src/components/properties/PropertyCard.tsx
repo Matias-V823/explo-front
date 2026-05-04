@@ -78,9 +78,9 @@ export default function PropertyCard({ property, onView, onEdit, onDelete }: Pro
   const badge = AVAILABILITY_CONFIG[property.availability]
 
   return (
-    <div className="bg-white/80 rounded-2xl border border-white/60 shadow-sm flex overflow-hidden hover:-translate-y-px transition-transform duration-200 h-60">
+    <div className="bg-white/80 rounded-2xl border border-white/60 shadow-sm flex flex-col md:flex-row overflow-hidden hover:-translate-y-px transition-transform duration-200 md:h-60">
       {/* Image */}
-      <div className="w-55 min-w-55 bg-zinc-100 relative overflow-hidden">
+      <div className="h-44 md:h-auto md:w-55 md:min-w-55 bg-zinc-100 relative overflow-hidden shrink-0">
         <img
           src={property.images[0]}
           alt={property.name}
@@ -94,7 +94,7 @@ export default function PropertyCard({ property, onView, onEdit, onDelete }: Pro
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-5 flex flex-col gap-3 min-w-0">
+      <div className="flex-1 p-4 md:p-5 flex flex-col gap-2.5 md:gap-3 min-w-0">
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

@@ -332,7 +332,7 @@ export default function PropertyFormPage() {
     <form onSubmit={handleSubmit} className="flex min-h-full">
 
       {/* ── Sidebar nav ── */}
-      <aside className="w-52 shrink-0 self-start sticky top-6 flex flex-col gap-1 px-4 py-2">
+      <aside className="hidden md:flex w-52 shrink-0 self-start sticky top-6 flex-col gap-1 px-4 py-2">
 
         <button type="button" onClick={() => navigate('/propiedades')}
           className="flex items-center gap-2 text-[12px] text-zinc-400 hover:text-ink transition-colors mb-4 mt-2 cursor-pointer">
@@ -367,17 +367,22 @@ export default function PropertyFormPage() {
         })}
       </aside>
 
-      <main className="flex-1 px-6 py-6 pb-16 flex flex-col gap-4 min-w-0">
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h1 className="text-[26px] font-extrabold text-ink tracking-[-0.8px]">
+      <main className="flex-1 px-4 md:px-6 py-5 md:py-6 pb-16 flex flex-col gap-4 min-w-0">
+        <button type="button" onClick={() => navigate('/propiedades')}
+          className="md:hidden flex items-center gap-2 text-[12px] text-zinc-400 hover:text-ink transition-colors -mt-1 mb-1 cursor-pointer self-start">
+          <ArrowLeft size={13} strokeWidth={2} />
+          Volver
+        </button>
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="min-w-0">
+            <h1 className="text-[20px] md:text-[26px] font-extrabold text-ink tracking-[-0.8px]">
               {isEditing ? 'Editar propiedad' : 'Agregar propiedad'}
             </h1>
             <p className="text-[13px] text-zinc-400 mt-0.5">
               Completa la información de la ficha técnica
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 pt-0.5">
             <button type="button" onClick={() => navigate('/propiedades')}
               className="h-9 px-4 rounded-xl border border-zinc-200 text-[12.5px] font-medium text-zinc-500 hover:bg-zinc-50 transition-colors cursor-pointer">
               Cancelar
@@ -429,7 +434,7 @@ export default function PropertyFormPage() {
                 placeholder="Ej: Av. Providencia 1234" className={errCls('address')} />
               {errors.address && <p className="text-[11px] text-red-500 mt-1">{errors.address}</p>}
             </div>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <label className={labelCls}>País <span className="text-red-400">*</span></label>
                 <select value={form.countryId} onChange={e => handleCountryChange(e.target.value)}
@@ -490,7 +495,7 @@ export default function PropertyFormPage() {
         </SectionCard>
 
         <SectionCard id="caracteristicas" number={3} title="Características">
-          <div className="grid grid-cols-5 gap-3">
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
             {([
               { key: 'bedrooms',     label: 'Dormitorios' },
               { key: 'bathrooms',    label: 'Baños' },
@@ -568,7 +573,8 @@ export default function PropertyFormPage() {
           {form.utilities.length === 0 && (
             <p className="text-[12.5px] text-zinc-400 text-center py-4">Sin servicios registrados</p>
           )}
-          <div className="flex flex-col gap-2">
+          <div className="overflow-x-auto pb-1">
+          <div className="flex flex-col gap-2 min-w-[580px]">
             {form.utilities.map((u, i) => {
               const providersForType = serviceProviders.filter(p => p.utilityType.id === u.utilityTypeId)
               return (
@@ -610,6 +616,7 @@ export default function PropertyFormPage() {
               )
             })}
           </div>
+          </div>
         </SectionCard>
 
         <SectionCard id="financiero" number={6} title="Gestión financiera">
@@ -626,7 +633,7 @@ export default function PropertyFormPage() {
             </button>
           </div>
           {form.hasFinancials && (
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-zinc-100">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-4 border-t border-zinc-100">
               <div>
                 <label className={labelCls}>Arriendo mensual (CLP) <span className="text-red-400">*</span></label>
                 <input type="number" value={form.monthlyRentCLP}
@@ -688,7 +695,8 @@ export default function PropertyFormPage() {
             {form.documents.length === 0 && (
               <p className="text-[12.5px] text-zinc-400 text-center py-4">Sin documentos adjuntos</p>
             )}
-            <div className="flex flex-col gap-2">
+            <div className="overflow-x-auto pb-1">
+            <div className="flex flex-col gap-2 min-w-[520px]">
               {form.documents.map((doc, i) => (
                 <div key={i} className="grid grid-cols-[160px_1fr_140px_auto_32px] gap-2 items-center">
                   <select value={doc.documentTypeId} onChange={e => setDoc(i, 'documentTypeId', e.target.value)}
@@ -725,6 +733,7 @@ export default function PropertyFormPage() {
                 </div>
               ))}
             </div>
+            </div>
             <input ref={docFileInputRef} type="file"
               accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
               className="hidden" onChange={handleDocumentUpload} />
@@ -743,7 +752,8 @@ export default function PropertyFormPage() {
             {form.importantDates.length === 0 && (
               <p className="text-[12.5px] text-zinc-400 text-center py-4">Sin fechas registradas</p>
             )}
-            <div className="flex flex-col gap-2">
+            <div className="overflow-x-auto pb-1">
+            <div className="flex flex-col gap-2 min-w-[430px]">
               {form.importantDates.map((d, i) => (
                 <div key={i} className="grid grid-cols-[120px_1fr_140px_32px] gap-2 items-center">
                   <select value={d.type} onChange={e => setDate(i, 'type', e.target.value)}
@@ -761,6 +771,7 @@ export default function PropertyFormPage() {
                   </button>
                 </div>
               ))}
+            </div>
             </div>
           </div>
         </SectionCard>
