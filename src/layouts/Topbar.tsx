@@ -3,6 +3,11 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { Bell, Settings, LogOut, Menu, X } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 
+const settingsLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `flex gap-2 rounded-full px-3.5 py-1.5 items-center justify-center transition-colors h-full cursor-pointer no-underline ${
+    isActive ? 'bg-ink text-white' : 'bg-zinc-50/80 text-ink-2 hover:bg-zinc-50'
+  }`
+
 const navItems = [
   { to: '/', label: 'Home', end: true },
   { to: '/propiedades', label: 'Propiedades' },
@@ -58,10 +63,10 @@ export default function Topbar() {
         </nav>
 
         <div className="flex items-center gap-1 shrink-0 h-9">
-          <button className="flex gap-2 bg-zinc-50/80 rounded-full px-3.5 py-1.5 items-center justify-center text-ink-2 hover:bg-zinc-50 transition-colors h-full cursor-pointer">
+          <NavLink to="/configuracion" className={settingsLinkClass}>
             <Settings size={15} strokeWidth={1.8} />
             <span className="text-[13.5px] font-medium">Settings</span>
-          </button>
+          </NavLink>
           <button className="relative w-9 h-9 rounded-full bg-white border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-ink-2 hover:bg-zinc-50 transition-colors cursor-pointer">
             <Bell size={15} strokeWidth={1.8} />
             <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-danger border-[1.5px] border-white/80" />
@@ -127,10 +132,18 @@ export default function Topbar() {
           </nav>
 
           <div className="border-t border-[rgba(0,0,0,0.06)] p-2 flex flex-col gap-0.5">
-            <button className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-[14px] text-ink-2 hover:bg-zinc-50 transition-colors cursor-pointer w-full text-left">
+            <NavLink
+              to="/configuracion"
+              onClick={() => setMenuOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-2.5 rounded-xl text-[14px] no-underline transition-colors cursor-pointer w-full text-left ${
+                  isActive ? 'bg-ink text-white font-medium' : 'text-ink-2 hover:bg-zinc-50 font-normal'
+                }`
+              }
+            >
               <Settings size={15} strokeWidth={1.8} />
-              <span className="font-medium">Settings</span>
-            </button>
+              <span>Settings</span>
+            </NavLink>
             <button
               onClick={() => { setMenuOpen(false); handleLogout() }}
               className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-[14px] text-ink-3 hover:bg-red-50 hover:text-red-500 transition-colors cursor-pointer w-full text-left"

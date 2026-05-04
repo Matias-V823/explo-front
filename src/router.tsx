@@ -13,6 +13,7 @@ import PropertyFormPage from './pages/PropertyFormPage'
 import PropertyDetailPage from './pages/PropertyDetailPage'
 import TasksPage from './pages/TasksPage'
 import CalendarPage from './pages/CalendarPage'
+import SettingsPage from './pages/SettingsPage'
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,7 @@ const router = createBrowserRouter([
           { path: 'transacciones', element: <TransactionsPage /> },
           { path: 'tasks', element: <TasksPage /> },
           { path: 'calendario', element: <CalendarPage /> },
+          { path: 'configuracion', element: <SettingsPage /> },
         ],
       },
     ],
