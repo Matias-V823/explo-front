@@ -58,6 +58,7 @@ const TasksPage = () => {
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('todas')
   const [showForm, setShowForm] = useState(false)
   const [whatsappEnabled, setWhatsappEnabled] = useState(false)
+  const [mobileTab, setMobileTab] = useState<'tareas' | 'alertas'>('tareas')
 
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES)
   const [newTitle, setNewTitle] = useState('')
@@ -146,15 +147,15 @@ const TasksPage = () => {
   }
 
   return (
-    <div className="px-10 pt-9 pb-10 max-w-360 mx-auto w-full">
+    <div className="px-4 md:px-6 xl:px-10 pt-5 md:pt-7 xl:pt-9 pb-6 xl:pb-10 max-w-360 mx-auto w-full">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-7">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between mb-5 md:mb-7">
         <div>
-          <h1 className="text-[32px] font-extrabold text-ink tracking-[-1px] leading-[1.1] mb-2">
+          <h1 className="text-[24px] md:text-[32px] font-extrabold text-ink tracking-[-1px] leading-[1.1] mb-1 md:mb-2">
             Tareas y alertas
           </h1>
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2 md:gap-2.5">
             <span className="text-[13px] text-ink-3">
               {tasks.filter((t) => !t.done).length} pendientes
             </span>
@@ -171,7 +172,7 @@ const TasksPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Tooltip
             title={
               whatsappEnabled
@@ -189,14 +190,16 @@ const TasksPage = () => {
           >
             <button
               onClick={() => setWhatsappEnabled((v) => !v)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-[10px] text-[13px] font-medium border transition-all duration-150 cursor-pointer ${
+              className={`flex items-center gap-2 px-3 md:px-3.5 py-2 rounded-[10px] text-[13px] font-medium border transition-all duration-150 cursor-pointer ${
                 whatsappEnabled
                   ? 'bg-[rgba(37,211,102,0.1)] text-[#15803d] border-[rgba(37,211,102,0.3)]'
                   : 'bg-white/60 text-ink-3 border-[rgba(0,0,0,0.08)] hover:bg-white hover:text-ink'
               }`}
             >
               <WhatsAppIcon size={14} />
-              {whatsappEnabled ? 'Recordatorio activo' : 'Activar recordatorio'}
+              <span className="hidden sm:inline">
+                {whatsappEnabled ? 'Recordatorio activo' : 'Activar recordatorio'}
+              </span>
               {whatsappEnabled ? (
                 <Bell size={12} className="opacity-60" />
               ) : (
@@ -220,35 +223,35 @@ const TasksPage = () => {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-zinc-50/80 rounded-[20px] shadow-sm border border-[rgba(0,0,0,0.05)] px-5 py-4">
-          <p className="text-[10.5px] font-medium text-ink-3 uppercase tracking-[0.6px] mb-3">
+      <div className="grid grid-cols-3 gap-2 md:gap-3 mb-5 md:mb-6">
+        <div className="bg-zinc-50/80 rounded-2xl md:rounded-[20px] shadow-sm border border-[rgba(0,0,0,0.05)] px-3 py-3 md:px-5 md:py-4">
+          <p className="text-[9.5px] md:text-[10.5px] font-medium text-ink-3 uppercase tracking-[0.6px] mb-2 md:mb-3">
             Alertas esta semana
           </p>
-          <div className="flex items-end gap-3">
-            <span className="text-[38px] font-extrabold text-ink tracking-[-1.5px] leading-none">
+          <div className="flex items-end gap-2 md:gap-3">
+            <span className="text-[26px] md:text-[38px] font-extrabold text-ink tracking-[-1.5px] leading-none">
               {alertsThisWeek}
             </span>
-            <div className="flex flex-col gap-0.5 pb-1">
-              <span className="text-[11px] text-red-500 font-medium">
+            <div className="flex flex-col gap-0.5 pb-0.5 md:pb-1">
+              <span className="text-[8px] md:text-[11px] text-red-500 font-medium">
                 {criticalAlerts} críticas
               </span>
-              <span className="text-[11px] text-amber-600/80">
+              <span className="text-[8px] md:text-[11px] text-amber-600/80">
                 {alerts.filter((a) => a.type === 'warning').length} advertencias
               </span>
             </div>
           </div>
         </div>
 
-        <div className="bg-zinc-50/80 rounded-[20px] shadow-sm border border-[rgba(0,0,0,0.05)] px-5 py-4">
-          <p className="text-[10.5px] font-medium text-ink-3 uppercase tracking-[0.6px] mb-3">
+        <div className="bg-zinc-50/80 rounded-[16px] md:rounded-[20px] shadow-sm border border-[rgba(0,0,0,0.05)] px-3 py-3 md:px-5 md:py-4">
+          <p className="text-[9.5px] md:text-[10.5px] font-medium text-ink-3 uppercase tracking-[0.6px] mb-2 md:mb-3">
             Progreso de tareas
           </p>
-          <div className="flex items-end gap-2 mb-3">
-            <span className="text-[38px] font-extrabold text-ink tracking-[-1.5px] leading-none">
+          <div className="flex items-end gap-2 mb-2 md:mb-3">
+            <span className="text-[26px] md:text-[38px] font-extrabold text-ink tracking-[-1.5px] leading-none">
               {donePct}%
             </span>
-            <span className="text-[12px] text-ink-3 pb-1">
+            <span className="text-[11px] md:text-[12px] text-ink-3 pb-0.5 md:pb-1">
               {done}/{total}
             </span>
           </div>
@@ -267,19 +270,19 @@ const TasksPage = () => {
           />
         </div>
 
-        <div className="bg-zinc-50/80 rounded-[20px] shadow-sm border border-[rgba(0,0,0,0.05)] px-5 py-4">
-          <p className="text-[10.5px] font-medium text-ink-3 uppercase tracking-[0.6px] mb-3">
+        <div className="bg-zinc-50/80 rounded-[16px] md:rounded-[20px] shadow-sm border border-[rgba(0,0,0,0.05)] px-3 py-3 md:px-5 md:py-4">
+          <p className="text-[9.5px] md:text-[10.5px] font-medium text-ink-3 uppercase tracking-[0.6px] mb-2 md:mb-3">
             Alta prioridad pendiente
           </p>
-          <div className="flex items-end gap-3">
+          <div className="flex items-end gap-2 md:gap-3">
             <span
-              className={`text-[38px] font-extrabold tracking-[-1.5px] leading-none ${
+              className={`text-[26px] md:text-[38px] font-extrabold tracking-[-1.5px] leading-none ${
                 urgentes > 0 ? 'text-red-500' : 'text-ink'
               }`}
             >
               {urgentes}
             </span>
-            <div className="pb-1">
+            <div className="pb-0.5 md:pb-1">
               <LinearProgress
                 variant="determinate"
                 value={
@@ -292,7 +295,7 @@ const TasksPage = () => {
                     : 0
                 }
                 sx={{
-                  width: 88,
+                  width: 60,
                   height: 6,
                   borderRadius: 8,
                   bgcolor: 'rgba(0,0,0,0.07)',
@@ -302,7 +305,7 @@ const TasksPage = () => {
                   },
                 }}
               />
-              <span className="text-[10.5px] text-ink-3 mt-1 block">
+              <span className="text-[9.5px] md:text-[10.5px] text-ink-3 mt-1 block">
                 {tasks.filter((t) => t.priority === 'alta' && t.done).length}/
                 {tasks.filter((t) => t.priority === 'alta').length} resueltas
               </span>
@@ -403,10 +406,40 @@ const TasksPage = () => {
         </div>
       )}
 
-      {/* Body grid */}
-      <div className="grid grid-cols-[1fr_340px] gap-4 items-start">
+      {/* Mobile tab toggle */}
+      <div className="md:hidden flex gap-1 mb-3 bg-ink rounded-[14px] p-1">
+        <button
+          onClick={() => setMobileTab('tareas')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-[13px] font-medium transition-all duration-150 cursor-pointer ${
+            mobileTab === 'tareas' ? 'bg-white/10 text-white' : 'text-white/45 hover:text-white/70'
+          }`}
+        >
+          Tareas
+          {tasks.filter(t => !t.done).length > 0 && (
+            <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${mobileTab === 'tareas' ? 'bg-white/10 text-white/70' : 'text-white/30'}`}>
+              {tasks.filter(t => !t.done).length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setMobileTab('alertas')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-[13px] font-medium transition-all duration-150 cursor-pointer ${
+            mobileTab === 'alertas' ? 'bg-white/10 text-white' : 'text-white/45 hover:text-white/70'
+          }`}
+        >
+          Alertas
+          {criticalAlerts > 0 && (
+            <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${mobileTab === 'alertas' ? 'bg-red-500/20 text-red-400' : 'bg-red-500/10 text-red-400/70'}`}>
+              {criticalAlerts}
+            </span>
+          )}
+        </button>
+      </div>
 
-        <div className="bg-ink rounded-[20px] shadow-sm p-5">
+      {/* Body grid */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4 items-start">
+
+        <div className={`bg-ink rounded-[20px] shadow-sm p-5 ${mobileTab !== 'tareas' ? 'hidden md:block' : ''}`}>
 
           {tasks.length > 0 && (
             <div className="mb-5">
@@ -521,7 +554,7 @@ const TasksPage = () => {
           </div>
         </div>
 
-        <div className="bg-ink rounded-[20px] shadow-sm p-5">
+        <div className={`bg-ink rounded-[20px] shadow-sm p-5 ${mobileTab !== 'alertas' ? 'hidden md:block' : ''}`}>
           <div className="flex items-center justify-between mb-4">
             <p className="text-base font-bold text-white tracking-[-0.3px]">Alertas</p>
             {criticalAlerts > 0 && (

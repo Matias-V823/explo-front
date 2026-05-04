@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/authStore'
 
 const settingsLinkClass = ({ isActive }: { isActive: boolean }) =>
   `flex gap-2 rounded-full px-3.5 py-1.5 items-center justify-center transition-colors h-full cursor-pointer no-underline ${
-    isActive ? 'bg-ink text-white' : 'bg-zinc-50/80 text-ink-2 hover:bg-zinc-50'
+    isActive ? 'bg-ink text-white' : 'bg-zinc-50 hover:bg-[rgba(0,0,0,0.05)]'
   }`
 
 const navItems = [
