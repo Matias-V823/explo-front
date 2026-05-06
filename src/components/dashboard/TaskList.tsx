@@ -2,14 +2,10 @@ import { useEffect, useState } from 'react'
 import { Check, AlertTriangle, ArrowUpRight } from 'lucide-react'
 import { formatDate } from '../../utils/formatters'
 import { IconButton } from '@mui/material'
-import type { Alert } from '../../types'
 import { useNavigate } from 'react-router-dom'
 import { useTaskStore } from '../../store/taskStore'
 import { useDashboardData } from '../../store/dashboardStore'
-
-interface TaskListProps {
-  alerts: Alert[]
-}
+import { useAlertStore } from '../../store/alertStore'
 
 const PRIORITY_SLOT: Record<string, string> = {
   alta: 'bg-red-400',
@@ -23,7 +19,8 @@ const alertTypeColor: Record<string, string> = {
   info: '#5B9DD6',
 }
 
-export default function TaskList({ alerts }: TaskListProps) {
+export default function TaskList() {
+  const alerts = useAlertStore((s) => s.alerts)
   const allTasks = useTaskStore((state) => state.tasks)
   const today = new Date().toISOString().slice(0, 10)
   const tasks = allTasks.filter((t) => t.dueDate?.slice(0, 10) === today)
@@ -135,7 +132,11 @@ export default function TaskList({ alerts }: TaskListProps) {
             </div>
           ))
           : alerts.map((alert) => (
-            <div key={alert.id} className="flex items-start gap-2.5 px-3 py-2.5 rounded-[14px] bg-white/5">
+            <div
+              key={alert.id}
+              onClick={() => navigate(`/propiedades/${alert.propertyId}`)}
+              className="flex items-start gap-2.5 px-3 py-2.5 rounded-[14px] bg-white/5 cursor-pointer hover:bg-white/10 transition-colors duration-150"
+            >
               <AlertTriangle
                 size={14}
                 color={alertTypeColor[alert.type]}

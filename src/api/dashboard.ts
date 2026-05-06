@@ -37,37 +37,6 @@ export async function fetchDashboardData(): Promise<DashboardResult> {
       role: backendUser.role?.name ?? '',
       avatarUrl: backendUser.avatarUrl! ?? undefined,
     },
-
-    alerts: [
-      {
-        id: 'a1',
-        type: 'danger',
-        title: 'Pago atrasado — Av. Providencia 831',
-        description: 'Carlos Mendoza lleva 12 días de atraso en su arriendo.',
-        date: '2026-03-25',
-      },
-      {
-        id: 'a2',
-        type: 'warning',
-        title: 'Contrato crítico — Las Condes 1420',
-        description: 'Vence en 18 días. Sin confirmación de renovación.',
-        date: '2026-04-24',
-      },
-      {
-        id: 'a3',
-        type: 'warning',
-        title: 'Contrato por vencer — Vitacura 890',
-        description: 'Vence en 29 días. Arrendatario solicitó reunión.',
-        date: '2026-05-05',
-      },
-      {
-        id: 'a4',
-        type: 'info',
-        title: 'Mantención programada — Lo Barnechea 45',
-        description: 'Visita técnica el 10 de abril.',
-        date: '2026-04-10',
-      },
-    ],
     progressItems: computeProgressItems(stats),
     kpiStats: {
       properties: stats.properties.total,

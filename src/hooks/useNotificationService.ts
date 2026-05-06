@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Socket } from 'socket.io-client';
 import { useAuthStore } from '../store/authStore';
 import { useNotificationStore } from '../store/notificationStore';
+import { useAlertStore } from '../store/alertStore';
 import { getNotificationSocket, disconnectNotificationSocket } from '../api/notificationSocket';
 import { apiFetch } from '../api/client';
 import type { Notification } from '../types/notification';
@@ -22,11 +23,17 @@ export function useNotificationService() {
       .then((data: Notification[]) => setNotifications(data))
       .catch(console.error);
 
+    useAlertStore.getState().loadAlerts();
+
     const socket = getNotificationSocket(token);
     socketRef.current = socket;
 
     socket.on('notification', (data: Notification) => {
-      addNotification(data);
+      if (data.type.startsWith('alert.')) {
+        useAlertStore.getState().loadAlerts();
+      } else {
+        addNotification(data);
+      }
     });
 
     socket.on('notifications:readAck', ({ id }: { id: string }) => {

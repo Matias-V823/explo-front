@@ -29,6 +29,7 @@ export interface Alert {
   title: string
   description: string
   date: string
+  propertyId: number
 }
 
 export interface Task {
@@ -84,7 +85,6 @@ export interface RevenueStats {
 
 export interface DashboardData {
   user: User
-  alerts: Alert[]
   propertyStats: PropertyStats
   revenueStats: RevenueStats
   progressItems: ProgressItem[]

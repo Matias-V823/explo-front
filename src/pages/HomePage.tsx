@@ -48,7 +48,7 @@ export default function HomePage() {
         </div>
 
         <div className="min-h-64 md:min-h-80 xl:min-h-0 xl:col-start-4 xl:row-start-1 xl:row-span-2">
-          <TaskList alerts={data.alerts} />
+          <TaskList />
         </div>
 
         <div className="min-h-64 md:col-span-2 lg:col-span-1 md:min-h-72 xl:col-start-1 xl:row-start-2">

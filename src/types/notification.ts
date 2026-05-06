@@ -4,7 +4,10 @@ export type NotificationType =
   | 'task.completed'
   | 'calendar.created'
   | 'calendar.reminder'
-  | 'property.date.reminder';
+  | 'property.date.reminder'
+  | 'alert.overdue.payment'
+  | 'alert.contract.expiring'
+  | 'alert.maintenance.scheduled';
 
 export interface Notification {
   id: string;

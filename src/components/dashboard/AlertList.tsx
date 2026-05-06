@@ -1,10 +1,6 @@
 import { AlertTriangle, AlertCircle, Info } from 'lucide-react'
 import { formatDate } from '../../utils/formatters'
-import type { Alert } from '../../types'
-
-interface AlertListProps {
-  alerts: Alert[]
-}
+import { useAlertStore } from '../../store/alertStore'
 
 const alertConfig = {
   danger: {
@@ -27,7 +23,8 @@ const alertConfig = {
   },
 }
 
-export default function AlertList({ alerts }: AlertListProps) {
+export default function AlertList() {
+  const alerts = useAlertStore((s) => s.alerts)
   return (
     <div className="card p-6 h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">

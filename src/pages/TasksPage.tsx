@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Check, AlertTriangle, AlertCircle, Info, Plus, X, Bell, BellOff } from 'lucide-react'
 import { LinearProgress, Tooltip } from '@mui/material'
 import { formatDate } from '../utils/formatters'
 import { useDashboardData } from '../store/dashboardStore'
 import { useTaskStore } from '../store/taskStore'
+import { useAlertStore } from '../store/alertStore'
 import type { Task } from '../types'
 
 const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
@@ -52,8 +54,10 @@ type StatusFilter = 'todas' | 'pendientes' | 'completadas'
 type PriorityFilter = 'todas' | 'alta' | 'media' | 'baja'
 
 const TasksPage = () => {
+  const navigate = useNavigate()
   const { data, userId, loading: dashLoading } = useDashboardData()
   const { tasks, loading: tasksLoading, loadTasks, addTask, toggleTask } = useTaskStore()
+  const { alerts, loading: alertsLoading, loadAlerts } = useAlertStore()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pendientes')
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('todas')
   const [showForm, setShowForm] = useState(false)
@@ -74,12 +78,14 @@ const TasksPage = () => {
   }, [userId])
 
   useEffect(() => {
+    loadAlerts()
+  }, [])
+
+  useEffect(() => {
     if (addingCategory) newCategoryInputRef.current?.focus()
   }, [addingCategory])
 
-  const loading = dashLoading || tasksLoading
-
-  const alerts = data?.alerts ?? []
+  const loading = dashLoading || tasksLoading || alertsLoading
 
   const filtered = tasks.filter((t) => {
     if (statusFilter === 'pendientes' && t.done) return false
@@ -569,7 +575,8 @@ const TasksPage = () => {
               return (
                 <div
                   key={alert.id}
-                  className="flex items-start gap-2.5 px-3 py-2.5 rounded-[14px] bg-white/5"
+                  onClick={() => navigate(`/propiedades/${alert.propertyId}`)}
+                  className="flex items-start gap-2.5 px-3 py-2.5 rounded-[14px] bg-white/5 cursor-pointer hover:bg-white/10 transition-colors duration-150"
                 >
                   <Icon
                     size={14}
