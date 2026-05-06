@@ -4,6 +4,8 @@ import AuthLayout from './layouts/AuthLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import TwoFactorPage from './pages/TwoFactorPage'
 import PropertiesPage from './pages/PropertiesPage'
 import ContactsPage from './pages/ContactsPage'
 import TicketsPage from './pages/TicketsPage'
@@ -17,9 +19,12 @@ import SettingsPage from './pages/SettingsPage'
 
 const router = createBrowserRouter([
   {
-    path: '/iniciar-sesion',
     element: <AuthLayout />,
-    children: [{ index: true, element: <LoginPage /> }],
+    children: [
+      { path: '/iniciar-sesion', element: <LoginPage /> },
+      { path: '/registro', element: <RegisterPage /> },
+      { path: '/verificar', element: <TwoFactorPage /> },
+    ],
   },
   {
     path: '/',

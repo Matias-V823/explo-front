@@ -1,5 +1,5 @@
-import { type FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, type ChangeEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 
@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: ChangeEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -94,7 +94,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="h-10 mt-1 rounded-[10px] bg-ink text-white text-[13.5px] font-medium hover:bg-zinc-800 active:bg-zinc-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+          className="h-10 mt-1 rounded-[10px] bg-ink text-white text-[13.5px] font-medium hover:bg-ink-2 active:bg-ink transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
         >
           {loading ? (
             <>
@@ -115,6 +115,13 @@ export default function LoginPage() {
           <span className="font-mono text-ink-3">explo123</span>
         </p>
       </div>
+
+      <p className="mt-6 text-center text-[12.5px] text-ink-3">
+        ¿No tienes cuenta?{' '}
+        <Link to="/registro" className="text-ink font-semibold hover:underline">
+          Crear cuenta
+        </Link>
+      </p>
     </>
   )
 }
