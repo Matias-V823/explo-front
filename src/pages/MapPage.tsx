@@ -236,31 +236,105 @@ export default function MapaPage() {
       <div ref={containerRef} className="rounded-xl overflow-hidden shadow-lg relative" style={{ height: '80vh' }}>
 
         {/* Filter panel */}
-        <div className="absolute top-3 left-3 md:top-4 md:left-4 z-10 bg-white/90 backdrop-blur-sm rounded-xl md:rounded-2xl shadow-lg p-2 md:p-3 flex flex-col gap-1.5 md:gap-2 min-w-[110px] md:min-w-[160px]">
-          <p className="text-[9px] md:text-[10px] font-semibold text-zinc-400 uppercase tracking-wider px-0.5 md:px-1">Estado</p>
-          {FILTERS.map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              style={{
-                backgroundColor: FILTER_COLORS[f],
-                opacity: filter === f ? 1 : 0.42,
-              }}
-              className={`px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-white text-[11px] md:text-xs font-semibold transition-all hover:opacity-75 ${filter === f ? 'shadow-md' : ''}`}
-            >
-              {FILTER_LABELS[f]}
-            </button>
-          ))}
-          <div className="border-t border-zinc-200 pt-1.5 md:pt-2 mt-0.5">
+        <div
+          className="absolute top-3 left-3 md:top-4 md:left-4 z-10 flex flex-col min-w-37 md:min-w-60"
+          style={{
+            background: 'rgba(255,255,255,0.92)',
+            backdropFilter: 'blur(14px)',
+            WebkitBackdropFilter: 'blur(14px)',
+            border: '1px solid rgba(17,24,39,0.08)',
+            borderRadius: '13px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+          }}
+        >
+          <div
+            className="px-3.5 pt-3 pb-2.5"
+            style={{ borderBottom: '1px solid rgba(17,24,39,0.07)' }}
+          >
+            <p style={{
+              fontSize: '9px',
+              fontWeight: 600,
+              letterSpacing: '0.11em',
+              textTransform: 'uppercase',
+              color: '#6b7280',
+            }}>
+              Estado
+            </p>
+          </div>
+
+          <div className="p-2 flex flex-col gap-0.5">
+            {FILTERS.map(f => {
+              const active = filter === f
+              const color  = FILTER_COLORS[f]
+              return (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className="flex items-center gap-2.5 rounded-lg transition-all text-left w-full"
+                  style={{
+                    padding: '7px 10px',
+                    background: active ? 'rgba(17,24,39,0.04)' : 'transparent',
+                    borderLeft: `2.5px solid ${active ? color : 'transparent'}`,
+                  }}
+                >
+                  <span
+                    className="rounded-full flex-shrink-0"
+                    style={{
+                      width: 7,
+                      height: 7,
+                      backgroundColor: color,
+                      opacity: active ? 1 : 0.38,
+                      boxShadow: active ? `0 0 7px ${color}` : 'none',
+                      transition: 'box-shadow 0.2s, opacity 0.2s',
+                    }}
+                  />
+                  <span style={{
+                    fontSize: '12px',
+                    fontWeight: active ? 600 : 400,
+                    color: active ? '#111827' : '#6b7280',
+                    transition: 'color 0.2s, font-weight 0.15s',
+                    letterSpacing: '0.01em',
+                  }}>
+                    {FILTER_LABELS[f]}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div
+            className="p-2 pt-1.5"
+            style={{ borderTop: '1px solid rgba(17,24,39,0.07)' }}
+          >
             <button
               onClick={() => setShowHeatmap(h => !h)}
-              className={`w-full px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[11px] md:text-xs font-semibold transition-all ${
-                showHeatmap
-                  ? 'bg-rose-500 text-white shadow-md'
-                  : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
-              }`}
+              className="flex items-center gap-2.5 rounded-lg w-full transition-all"
+              style={{
+                padding: '7px 10px',
+                background: showHeatmap ? 'rgba(239,68,68,0.07)' : 'transparent',
+                borderLeft: `2.5px solid ${showHeatmap ? '#ef4444' : 'transparent'}`,
+              }}
             >
-              {showHeatmap ? 'Ocultar heatmap' : 'Ver heatmap'}
+              <span
+                className="rounded-full flex-shrink-0"
+                style={{
+                  width: 7,
+                  height: 7,
+                  backgroundColor: '#ef4444',
+                  opacity: showHeatmap ? 1 : 0.38,
+                  boxShadow: showHeatmap ? '0 0 7px #ef4444' : 'none',
+                  transition: 'box-shadow 0.2s, opacity 0.2s',
+                }}
+              />
+              <span style={{
+                fontSize: '12px',
+                fontWeight: showHeatmap ? 600 : 400,
+                color: showHeatmap ? '#111827' : '#6b7280',
+                transition: 'color 0.2s',
+                letterSpacing: '0.01em',
+              }}>
+                Heatmap
+              </span>
             </button>
           </div>
         </div>
