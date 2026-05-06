@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Bell, Settings, LogOut, Menu, X } from 'lucide-react'
+import { Settings, LogOut, Menu, X } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
+import NotificationBell from '../components/NotificationBell'
 
 const settingsLinkClass = ({ isActive }: { isActive: boolean }) =>
   `flex gap-2 rounded-full px-3.5 py-1.5 items-center justify-center transition-colors h-full cursor-pointer no-underline ${
@@ -67,10 +68,7 @@ export default function Topbar() {
             <Settings size={15} strokeWidth={1.8} />
             <span className="text-[13.5px] font-medium" title='Configuración'>Configuración</span>
           </NavLink>
-          <button className="relative w-9 h-9 rounded-full bg-white border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-ink-2 hover:bg-zinc-50 transition-colors cursor-pointer">
-            <Bell size={15} strokeWidth={1.8} />
-            <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-danger border-[1.5px] border-white/80" />
-          </button>
+          <NotificationBell />
           <button
             title={user?.name}
             className="w-9 h-9 rounded-full bg-white border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-sm font-bold text-ink cursor-pointer"
@@ -89,10 +87,7 @@ export default function Topbar() {
 
       {/* Mobile actions */}
       <div className="flex md:hidden items-center gap-1.5">
-        <button className="relative w-9 h-9 rounded-full bg-white border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-ink-2 cursor-pointer">
-          <Bell size={15} strokeWidth={1.8} />
-          <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-danger border-[1.5px] border-white/80" />
-        </button>
+        <NotificationBell />
         <button
           title={user?.name}
           className="w-9 h-9 rounded-full bg-white border border-[rgba(0,0,0,0.07)] flex items-center justify-center text-sm font-bold text-ink cursor-pointer"

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { loginWithBackend } from '../api/auth'
+import { disconnectNotificationSocket } from '../api/notificationSocket'
 
 interface AuthUser {
   id: string
@@ -53,6 +54,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        disconnectNotificationSocket()
         set({ user: null, token: null, isAuthenticated: false })
       },
     }),

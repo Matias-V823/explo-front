@@ -23,6 +23,7 @@
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.14.0",
     "resium": "^1.21.0",
+    "socket.io-client": "^4.8.3",
     "tailwindcss": "^4.2.2",
     "vite-plugin-cesium": "^1.2.23",
     "zustand": "^5.0.12"
