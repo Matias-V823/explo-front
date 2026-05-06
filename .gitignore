@@ -25,3 +25,8 @@ dist-ssr
 
 package-lock.json
 
+.claude/*
+.agents/*
+CLAUDE.md
+
+skills-lock.json
