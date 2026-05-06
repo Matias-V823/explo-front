@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AlertCircle, Loader2, Mail, RefreshCw } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import OtpInput from '../components/auth/OtpInput'
+import TermsAcceptanceModal from '../components/auth/TermsAcceptanceModal'
 
 export default function TwoFactorPage() {
   const { verifyTwoFactor, pendingVerification, resendCode } = useAuthStore((s) => ({
@@ -17,6 +18,7 @@ export default function TwoFactorPage() {
   const [loading, setLoading] = useState(false)
   const [cooldown, setCooldown] = useState(0)
   const [resending, setResending] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
 
   useEffect(() => {
     if (!pendingVerification) navigate('/registro', { replace: true })
@@ -37,7 +39,7 @@ export default function TwoFactorPage() {
     const result = await verifyTwoFactor(code)
     setLoading(false)
     if (result.success) {
-      navigate('/', { replace: true })
+      setShowTerms(true)
     } else {
       setError(result.error ?? 'Código inválido')
       setDigits(Array(6).fill(''))
@@ -55,6 +57,10 @@ export default function TwoFactorPage() {
   }
 
   if (!pendingVerification) return null
+
+  if (showTerms) {
+    return <TermsAcceptanceModal onAccept={() => navigate('/', { replace: true })} />
+  }
 
   const codeComplete = digits.join('').length === 6
 
