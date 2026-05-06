@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Bell, BellOff, CheckCheck, ClipboardList, CalendarClock, Building2, X } from 'lucide-react';
+import { Bell, BellOff, CheckCheck, ClipboardList, CalendarClock, Building2, X, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 import { useNotificationStore } from '../store/notificationStore';
-import { useNotificationService } from '../hooks/useNotificationService';
+import { useNotificationActions } from '../hooks/useNotificationActions';
 import type { Notification, NotificationType } from '../types/notification';
 
 type TypeConfig = {
@@ -15,12 +15,15 @@ type TypeConfig = {
 };
 
 const TYPE_CONFIG: Record<NotificationType, TypeConfig> = {
-  'task.created':           { label: 'Tarea creada',        borderClass: 'border-[#F2C94C]',  bgClass: 'bg-amber-50',   iconClass: 'text-amber-500',   dotClass: 'bg-amber-400',   labelClass: 'text-amber-600',   Icon: ClipboardList },
-  'task.updated':           { label: 'Tarea actualizada',   borderClass: 'border-[#F2C94C]',  bgClass: 'bg-amber-50',   iconClass: 'text-amber-500',   dotClass: 'bg-amber-400',   labelClass: 'text-amber-600',   Icon: ClipboardList },
-  'task.completed':         { label: 'Tarea completada',    borderClass: 'border-emerald-400', bgClass: 'bg-emerald-50', iconClass: 'text-emerald-500', dotClass: 'bg-emerald-400', labelClass: 'text-emerald-600', Icon: ClipboardList },
-  'calendar.created':       { label: 'Evento de calendario', borderClass: 'border-[#5B9DD6]', bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     dotClass: 'bg-sky-400',     labelClass: 'text-sky-600',     Icon: CalendarClock },
-  'calendar.reminder':      { label: 'Recordatorio',        borderClass: 'border-[#5B9DD6]',  bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     dotClass: 'bg-sky-400',     labelClass: 'text-sky-600',     Icon: CalendarClock },
-  'property.date.reminder': { label: 'Propiedad',           borderClass: 'border-violet-400', bgClass: 'bg-violet-50',  iconClass: 'text-violet-500',  dotClass: 'bg-violet-400',  labelClass: 'text-violet-600',  Icon: Building2 },
+  'task.created':                { label: 'Tarea creada',        borderClass: 'border-[#F2C94C]',  bgClass: 'bg-amber-50',   iconClass: 'text-amber-500',   dotClass: 'bg-amber-400',   labelClass: 'text-amber-600',   Icon: ClipboardList },
+  'task.updated':                { label: 'Tarea actualizada',   borderClass: 'border-[#F2C94C]',  bgClass: 'bg-amber-50',   iconClass: 'text-amber-500',   dotClass: 'bg-amber-400',   labelClass: 'text-amber-600',   Icon: ClipboardList },
+  'task.completed':              { label: 'Tarea completada',    borderClass: 'border-emerald-400', bgClass: 'bg-emerald-50', iconClass: 'text-emerald-500', dotClass: 'bg-emerald-400', labelClass: 'text-emerald-600', Icon: ClipboardList },
+  'calendar.created':            { label: 'Evento de calendario', borderClass: 'border-[#5B9DD6]', bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     dotClass: 'bg-sky-400',     labelClass: 'text-sky-600',     Icon: CalendarClock },
+  'calendar.reminder':           { label: 'Recordatorio',        borderClass: 'border-[#5B9DD6]',  bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     dotClass: 'bg-sky-400',     labelClass: 'text-sky-600',     Icon: CalendarClock },
+  'property.date.reminder':      { label: 'Propiedad',           borderClass: 'border-violet-400', bgClass: 'bg-violet-50',  iconClass: 'text-violet-500',  dotClass: 'bg-violet-400',  labelClass: 'text-violet-600',  Icon: Building2 },
+  'alert.overdue.payment':       { label: 'Pago atrasado',       borderClass: 'border-[#E05050]',  bgClass: 'bg-red-50',     iconClass: 'text-red-500',     dotClass: 'bg-red-400',     labelClass: 'text-red-600',     Icon: AlertCircle },
+  'alert.contract.expiring':     { label: 'Contrato',            borderClass: 'border-[#F2C94C]',  bgClass: 'bg-amber-50',   iconClass: 'text-amber-500',   dotClass: 'bg-amber-400',   labelClass: 'text-amber-600',   Icon: AlertTriangle },
+  'alert.maintenance.scheduled': { label: 'Mantención',          borderClass: 'border-[#5B9DD6]',  bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     dotClass: 'bg-sky-400',     labelClass: 'text-sky-600',     Icon: Info },
 };
 
 const FALLBACK_CONFIG: TypeConfig = {
@@ -48,7 +51,7 @@ function relativeTime(dateStr: string): string {
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const { notifications, unreadCount, removeNotification, clearNotifications } = useNotificationStore();
-  const { handleMarkAsRead, handleMarkAllAsRead } = useNotificationService();
+  const { handleMarkAsRead, handleMarkAllAsRead } = useNotificationActions();
 
   const onMarkAllRead = () => {
     handleMarkAllAsRead();

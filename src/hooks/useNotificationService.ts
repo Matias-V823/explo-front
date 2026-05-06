@@ -28,36 +28,29 @@ export function useNotificationService() {
     const socket = getNotificationSocket(token);
     socketRef.current = socket;
 
-    socket.on('notification', (data: Notification) => {
+    const onNotification = (data: Notification) => {
+      addNotification(data);
       if (data.type.startsWith('alert.')) {
         useAlertStore.getState().loadAlerts();
-      } else {
-        addNotification(data);
       }
-    });
+    };
+    const onReadAck = ({ id }: { id: string }) => markAsRead(id);
+    const onAllReadAck = () => markAllAsRead();
+    const onError = (err: { message: string }) => console.error('[WS] Error de autenticación:', err.message);
+    const onConnectError = (err: Error) => console.error('[WS] Error de conexión:', err.message);
 
-    socket.on('notifications:readAck', ({ id }: { id: string }) => {
-      markAsRead(id);
-    });
-
-    socket.on('notifications:allReadAck', () => {
-      markAllAsRead();
-    });
-
-    socket.on('error', (err: { message: string }) => {
-      console.error('[WS] Error de autenticación:', err.message);
-    });
-
-    socket.on('connect_error', (err) => {
-      console.error('[WS] Error de conexión:', err.message);
-    });
+    socket.on('notification', onNotification);
+    socket.on('notifications:readAck', onReadAck);
+    socket.on('notifications:allReadAck', onAllReadAck);
+    socket.on('error', onError);
+    socket.on('connect_error', onConnectError);
 
     return () => {
-      socket.off('notification');
-      socket.off('notifications:readAck');
-      socket.off('notifications:allReadAck');
-      socket.off('error');
-      socket.off('connect_error');
+      socket.off('notification', onNotification);
+      socket.off('notifications:readAck', onReadAck);
+      socket.off('notifications:allReadAck', onAllReadAck);
+      socket.off('error', onError);
+      socket.off('connect_error', onConnectError);
     };
   }, [isAuthenticated, token]);
 

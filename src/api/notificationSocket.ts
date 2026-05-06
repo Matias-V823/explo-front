@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 let socket: Socket | null = null;
 
 export function getNotificationSocket(token: string): Socket {
-  if (socket?.connected) return socket;
+  if (socket) return socket;
 
   socket = io(`${API_URL}/notifications`, {
     auth: { token },
@@ -15,6 +15,10 @@ export function getNotificationSocket(token: string): Socket {
     reconnectionDelay: 2000,
   });
 
+  return socket;
+}
+
+export function getSocket(): Socket | null {
   return socket;
 }
 
